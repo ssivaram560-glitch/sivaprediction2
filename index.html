@@ -66,7 +66,7 @@
 let stats = JSON.parse(localStorage.getItem("siva_stats")) || { win:0, loss:0, ws:0, ls:0, level:1 };
 let lastCheckedPeriod = null;
 
-// 🔥 SERVER SYNC
+// 🔥 SERVER
 async function syncServer() {
     try {
         const res = await fetch("https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t=" + Date.now());
@@ -81,6 +81,11 @@ async function syncServer() {
         let seconds = 60 - new Date().getSeconds();
         document.getElementById("timer").innerText = seconds + "s";
 
+        // 👉 FIRST LOAD la history load
+        if(!lastCheckedPeriod){
+            loadFullHistory(data.data.list);
+        }
+
         if (lastCheckedPeriod && lastCheckedPeriod !== currentPeriod) {
             validateResult(latest);
         }
@@ -94,11 +99,10 @@ async function syncServer() {
     }
 }
 
-// 🧠 PREDICTION (NO WAIT + RECOVERY LOGIC)
+// 🔥 PREDICTION (UNCHANGED LOGIC)
 function generatePrediction(nextPeriod, list) {
 
     let last5 = list.slice(0, 5).map(item => parseInt(item.number));
-    let last = last5[0];
 
     let bigCount = last5.filter(n => n >= 5).length;
     let smallCount = last5.length - bigCount;
@@ -106,28 +110,16 @@ function generatePrediction(nextPeriod, list) {
     let redCount = last5.filter(n => n % 2 === 0).length;
     let greenCount = last5.length - redCount;
 
-    let predSize = "";
-    let predColor = "";
+    let sizeDiff = Math.abs(bigCount - smallCount);
+    let colorDiff = Math.abs(redCount - greenCount);
 
-    // 🔥 LEVEL 1 (TREND)
-    if(stats.level === 1){
-        predSize = bigCount >= smallCount ? "BIG" : "SMALL";
-        predColor = redCount >= greenCount ? "RED" : "GREEN";
+    let pred = "";
+
+    if(sizeDiff > colorDiff){
+        pred = (bigCount > smallCount) ? "BIG" : "SMALL";
+    } else {
+        pred = (redCount > greenCount) ? "RED" : "GREEN";
     }
-
-    // 🔥 LEVEL 2 (REVERSE)
-    else if(stats.level === 2){
-        predSize = last >= 5 ? "SMALL" : "BIG";
-        predColor = last % 2 === 0 ? "GREEN" : "RED";
-    }
-
-    // 🔥 LEVEL 3 (STRONG RECOVERY)
-    else {
-        predSize = last >= 5 ? "SMALL" : "BIG";
-        predColor = (Math.random() > 0.5) ? "RED" : "GREEN";
-    }
-
-    let pred = predSize + " " + predColor;
 
     let displayPred = pred;
     if(stats.level === 2) displayPred += " 🔥";
@@ -137,7 +129,7 @@ function generatePrediction(nextPeriod, list) {
 
     const circle = document.getElementById("glow-circle");
 
-    if(pred.includes("BIG")){
+    if(pred === "BIG" || pred === "GREEN"){
         circle.style.borderColor = "var(--neon-green)";
         document.getElementById("prediction-text").style.color = "var(--neon-green)";
     } else {
@@ -149,41 +141,120 @@ function generatePrediction(nextPeriod, list) {
     localStorage.setItem("current_period", nextPeriod);
 }
 
-// ✅ VALIDATE RESULT
+// ✅ RESULT CHECK
 function validateResult(latestResult) {
 
-    const actualNum = parseInt(latestResult.number);
-    const actualSize = actualNum >= 5 ? "BIG" : "SMALL";
-    const actualColor = actualNum % 2 === 0 ? "RED" : "GREEN";
+    const num = parseInt(latestResult.number);
+    const actualSize = num >= 5 ? "BIG" : "SMALL";
+    const actualColor = num % 2 === 0 ? "RED" : "GREEN";
 
-    const savedPred = localStorage.getItem("current_pred");
-    const savedPeriod = localStorage.getItem("current_period");
+    const pred = localStorage.getItem("current_pred");
+    const period = localStorage.getItem("current_period");
 
-    if (savedPeriod === latestResult.issueNumber) {
+    if (period === latestResult.issueNumber) {
 
-        let win = savedPred.includes(actualSize) || savedPred.includes(actualColor);
+        let win = false;
 
-        if (win) {
+        if(pred === "BIG" || pred === "SMALL"){
+            win = (pred === actualSize);
+        } else {
+            win = (pred === actualColor);
+        }
+
+        if(win){
             stats.win++;
-            stats.ws++; // no reset
+            stats.ws++;
+            stats.ls = 0;
             stats.level = 1;
         } else {
             stats.loss++;
-            stats.ls++; // no reset
+            stats.ls++;
+            stats.ws = 0;
 
-            if (stats.level < 3) stats.level++;
+            if(stats.level < 3) stats.level++;
             else stats.level = 1;
         }
 
         localStorage.setItem("siva_stats", JSON.stringify(stats));
 
-        updateHistory(
+        // 🔥 SAVE FULL HISTORY
+        saveFullHistory(
             latestResult.issueNumber,
-            savedPred,
+            pred,
             actualSize + " " + actualColor,
             win
         );
+
+        renderHistory();
     }
+}
+
+// 🔥 SAVE FULL HISTORY (PERMANENT)
+function saveFullHistory(period, pred, actual, isWin){
+
+    let all = JSON.parse(localStorage.getItem("full_history")) || [];
+
+    all.unshift({
+        period: period,
+        pred: pred,
+        actual: actual,
+        win: isWin
+    });
+
+    localStorage.setItem("full_history", JSON.stringify(all));
+}
+
+// 🔥 LOAD ALL HISTORY (FIRST TIME)
+function loadFullHistory(serverList){
+
+    let saved = JSON.parse(localStorage.getItem("full_history"));
+
+    if(saved && saved.length > 0){
+        renderHistory();
+        return;
+    }
+
+    // 👉 first time fill from server
+    let temp = [];
+
+    serverList.forEach(item=>{
+        let num = parseInt(item.number);
+        let size = num>=5?"BIG":"SMALL";
+        let color = num%2===0?"RED":"GREEN";
+
+        temp.push({
+            period: item.issueNumber,
+            pred: "-",
+            actual: size+" "+color,
+            win: "-"
+        });
+    });
+
+    localStorage.setItem("full_history", JSON.stringify(temp));
+    renderHistory();
+}
+
+// 🔥 RENDER HISTORY
+function renderHistory(){
+
+    const log = document.getElementById("history-log");
+    log.innerHTML = "";
+
+    let all = JSON.parse(localStorage.getItem("full_history")) || [];
+
+    all.forEach(item=>{
+        const div = document.createElement("div");
+        div.className = "log-item";
+
+        div.innerHTML = `
+            <span>${item.period} → ${item.pred} → ${item.actual}</span>
+            <span style="color:${item.win===true?'var(--neon-green)':item.win===false?'var(--neon-red)':'#64748b'}">
+                ${item.win===true?'WIN':item.win===false?'LOSS':'--'}
+            </span>
+        `;
+
+        log.appendChild(div);
+    });
 }
 
 // UI
@@ -193,25 +264,6 @@ function updateUI() {
     document.getElementById("total-win").innerText = stats.win;
     document.getElementById("total-loss").innerText = stats.loss;
     document.getElementById("level-tag").innerText = "LEVEL " + stats.level;
-}
-
-// HISTORY
-function updateHistory(period, pred, actual, isWin) {
-
-    const log = document.getElementById("history-log");
-    if(log.innerText.includes("Loading")) log.innerHTML = "";
-
-    const div = document.createElement("div");
-    div.className = "log-item";
-
-    div.innerHTML = `
-        <span>${period} → ${pred} → ${actual}</span>
-        <span style="color:${isWin?'var(--neon-green)':'var(--neon-red)'}">
-            ${isWin?'WIN':'LOSS'}
-        </span>
-    `;
-
-    log.prepend(div);
 }
 
 setInterval(syncServer, 3000);
