@@ -66,6 +66,9 @@
 let stats = JSON.parse(localStorage.getItem("siva_stats")) || { win:0, loss:0, ws:0, ls:0, level:1 };
 let lastCheckedPeriod = null;
 
+// store best strategy
+let currentStrategy = localStorage.getItem("best_strategy") || "trend";
+
 // 🔥 SERVER
 async function syncServer() {
     try {
@@ -81,13 +84,8 @@ async function syncServer() {
         let seconds = 60 - new Date().getSeconds();
         document.getElementById("timer").innerText = seconds + "s";
 
-        // 👉 FIRST LOAD la history load
-        if(!lastCheckedPeriod){
-            loadFullHistory(data.data.list);
-        }
-
         if (lastCheckedPeriod && lastCheckedPeriod !== currentPeriod) {
-            validateResult(latest);
+            validateResult(latest, data.data.list);
         }
         
         lastCheckedPeriod = currentPeriod;
@@ -99,26 +97,84 @@ async function syncServer() {
     }
 }
 
-// 🔥 PREDICTION (UNCHANGED LOGIC)
+// 🔥 FIND BEST STRATEGY FROM LAST 10
+function findBestStrategy(list){
+
+    let last10 = list.slice(0,10).map(i=>parseInt(i.number));
+
+    let score = {
+        trend:0,
+        reverse:0,
+        last:0
+    };
+
+    for(let i=1;i<last10.length;i++){
+
+        let prev = last10[i];
+        let next = last10[i-1];
+
+        let prevSize = prev>=5?"BIG":"SMALL";
+        let nextSize = next>=5?"BIG":"SMALL";
+
+        // trend
+        if(prevSize === nextSize) score.trend++;
+
+        // reverse
+        if(prevSize !== nextSize) score.reverse++;
+
+        // last result follow
+        if(nextSize === (last10[0]>=5?"BIG":"SMALL")) score.last++;
+    }
+
+    let best = Object.keys(score).reduce((a,b)=> score[a]>score[b]?a:b);
+
+    localStorage.setItem("best_strategy", best);
+    return best;
+}
+
+// 🔥 PREDICTION
 function generatePrediction(nextPeriod, list) {
 
-    let last5 = list.slice(0, 5).map(item => parseInt(item.number));
+    let strategy = findBestStrategy(list);
 
-    let bigCount = last5.filter(n => n >= 5).length;
-    let smallCount = last5.length - bigCount;
+    let last10 = list.slice(0,10).map(i=>parseInt(i.number));
+    let last = last10[0];
 
-    let redCount = last5.filter(n => n % 2 === 0).length;
-    let greenCount = last5.length - redCount;
+    let big = last10.filter(n=>n>=5).length;
+    let small = last10.length - big;
 
-    let sizeDiff = Math.abs(bigCount - smallCount);
-    let colorDiff = Math.abs(redCount - greenCount);
+    let pred="";
 
-    let pred = "";
+    // LEVEL BASED
+    if(stats.level === 1){
 
-    if(sizeDiff > colorDiff){
-        pred = (bigCount > smallCount) ? "BIG" : "SMALL";
-    } else {
-        pred = (redCount > greenCount) ? "RED" : "GREEN";
+        if(strategy === "trend"){
+            pred = big>=small?"BIG":"SMALL";
+        }
+        else if(strategy === "reverse"){
+            pred = big>=small?"SMALL":"BIG";
+        }
+        else{
+            pred = last>=5?"BIG":"SMALL";
+        }
+
+    }
+    else if(stats.level === 2){
+
+        // reverse of level 1
+        pred = big>=small?"SMALL":"BIG";
+
+    }
+    else if(stats.level === 3){
+
+        pred = last>=5?"SMALL":"BIG";
+
+    }
+    else{
+
+        // level 4 safety random
+        pred = Math.random()>0.5?"BIG":"SMALL";
+        stats.level = 1;
     }
 
     let displayPred = pred;
@@ -129,7 +185,7 @@ function generatePrediction(nextPeriod, list) {
 
     const circle = document.getElementById("glow-circle");
 
-    if(pred === "BIG" || pred === "GREEN"){
+    if(pred === "BIG"){
         circle.style.borderColor = "var(--neon-green)";
         document.getElementById("prediction-text").style.color = "var(--neon-green)";
     } else {
@@ -141,120 +197,42 @@ function generatePrediction(nextPeriod, list) {
     localStorage.setItem("current_period", nextPeriod);
 }
 
-// ✅ RESULT CHECK
-function validateResult(latestResult) {
+// ✅ RESULT CHECK (STRIKE PERFECT)
+function validateResult(latestResult, list) {
 
     const num = parseInt(latestResult.number);
-    const actualSize = num >= 5 ? "BIG" : "SMALL";
-    const actualColor = num % 2 === 0 ? "RED" : "GREEN";
+    const actual = num>=5?"BIG":"SMALL";
 
     const pred = localStorage.getItem("current_pred");
     const period = localStorage.getItem("current_period");
 
     if (period === latestResult.issueNumber) {
 
-        let win = false;
-
-        if(pred === "BIG" || pred === "SMALL"){
-            win = (pred === actualSize);
-        } else {
-            win = (pred === actualColor);
-        }
+        let win = (pred === actual);
 
         if(win){
             stats.win++;
-            stats.ws++;
-            stats.ls = 0;
+            stats.ws++;   // continuous win
+            stats.ls = 0; // reset loss
             stats.level = 1;
         } else {
             stats.loss++;
-            stats.ls++;
-            stats.ws = 0;
+            stats.ls++;   // continuous loss
+            stats.ws = 0; // reset win
 
-            if(stats.level < 3) stats.level++;
+            if(stats.level < 4) stats.level++;
             else stats.level = 1;
         }
 
         localStorage.setItem("siva_stats", JSON.stringify(stats));
 
-        // 🔥 SAVE FULL HISTORY
-        saveFullHistory(
+        updateHistory(
             latestResult.issueNumber,
             pred,
-            actualSize + " " + actualColor,
+            actual,
             win
         );
-
-        renderHistory();
     }
-}
-
-// 🔥 SAVE FULL HISTORY (PERMANENT)
-function saveFullHistory(period, pred, actual, isWin){
-
-    let all = JSON.parse(localStorage.getItem("full_history")) || [];
-
-    all.unshift({
-        period: period,
-        pred: pred,
-        actual: actual,
-        win: isWin
-    });
-
-    localStorage.setItem("full_history", JSON.stringify(all));
-}
-
-// 🔥 LOAD ALL HISTORY (FIRST TIME)
-function loadFullHistory(serverList){
-
-    let saved = JSON.parse(localStorage.getItem("full_history"));
-
-    if(saved && saved.length > 0){
-        renderHistory();
-        return;
-    }
-
-    // 👉 first time fill from server
-    let temp = [];
-
-    serverList.forEach(item=>{
-        let num = parseInt(item.number);
-        let size = num>=5?"BIG":"SMALL";
-        let color = num%2===0?"RED":"GREEN";
-
-        temp.push({
-            period: item.issueNumber,
-            pred: "-",
-            actual: size+" "+color,
-            win: "-"
-        });
-    });
-
-    localStorage.setItem("full_history", JSON.stringify(temp));
-    renderHistory();
-}
-
-// 🔥 RENDER HISTORY
-function renderHistory(){
-
-    const log = document.getElementById("history-log");
-    log.innerHTML = "";
-
-    let all = JSON.parse(localStorage.getItem("full_history")) || [];
-
-    all.forEach(item=>{
-        const div = document.createElement("div");
-        div.className = "log-item";
-
-        div.innerHTML = `
-            <span>${item.period} → ${item.pred} → ${item.actual}</span>
-            <span style="color:${item.win===true?'var(--neon-green)':item.win===false?'var(--neon-red)':'#64748b'}">
-                ${item.win===true?'WIN':item.win===false?'LOSS':'--'}
-            </span>
-        `;
-
-        log.appendChild(div);
-    });
 }
 
 // UI
@@ -264,6 +242,25 @@ function updateUI() {
     document.getElementById("total-win").innerText = stats.win;
     document.getElementById("total-loss").innerText = stats.loss;
     document.getElementById("level-tag").innerText = "LEVEL " + stats.level;
+}
+
+// HISTORY
+function updateHistory(period, pred, actual, isWin) {
+
+    const log = document.getElementById("history-log");
+    if(log.innerText.includes("Loading")) log.innerHTML = "";
+
+    const div = document.createElement("div");
+    div.className = "log-item";
+
+    div.innerHTML = `
+        <span>${period} → ${pred} → ${actual}</span>
+        <span style="color:${isWin?'var(--neon-green)':'var(--neon-red)'}">
+            ${isWin?'WIN':'LOSS'}
+        </span>
+    `;
+
+    log.prepend(div);
 }
 
 setInterval(syncServer, 3000);
