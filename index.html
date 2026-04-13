@@ -62,6 +62,7 @@
 </div>
 
 <script>
+
 let stats = JSON.parse(localStorage.getItem("siva_stats")) || { win:0, loss:0, ws:0, ls:0, level:1 };
 let lastCheckedPeriod = null;
 
@@ -77,11 +78,9 @@ async function syncServer() {
         
         document.getElementById("period-num").innerText = "PERIOD: " + nextPeriod;
         
-        // Timer Logic based on real seconds
         let seconds = 60 - new Date().getSeconds();
         document.getElementById("timer").innerText = seconds + "s";
 
-        // Check result of previous period
         if (lastCheckedPeriod && lastCheckedPeriod !== currentPeriod) {
             validateResult(latest);
         }
@@ -95,64 +94,99 @@ async function syncServer() {
     }
 }
 
-// 🧠 SURESHOT LOGIC (3-LEVEL)
+// 🧠 PREDICTION (NO WAIT + RECOVERY LOGIC)
 function generatePrediction(nextPeriod, list) {
-    // Pattern Analysis
+
     let last5 = list.slice(0, 5).map(item => parseInt(item.number));
+    let last = last5[0];
+
     let bigCount = last5.filter(n => n >= 5).length;
     let smallCount = last5.length - bigCount;
-    
-    let pred = "";
-    // Strategy: Follow the trend for Sureshot
-    if (bigCount >= 3) pred = "BIG";
-    else if (smallCount >= 3) pred = "SMALL";
-    else pred = (last5[0] >= 5) ? "SMALL" : "BIG"; // Trend reversal
 
-    // 3-Level Level adjustment in Text
+    let redCount = last5.filter(n => n % 2 === 0).length;
+    let greenCount = last5.length - redCount;
+
+    let predSize = "";
+    let predColor = "";
+
+    // 🔥 LEVEL 1 (TREND)
+    if(stats.level === 1){
+        predSize = bigCount >= smallCount ? "BIG" : "SMALL";
+        predColor = redCount >= greenCount ? "RED" : "GREEN";
+    }
+
+    // 🔥 LEVEL 2 (REVERSE)
+    else if(stats.level === 2){
+        predSize = last >= 5 ? "SMALL" : "BIG";
+        predColor = last % 2 === 0 ? "GREEN" : "RED";
+    }
+
+    // 🔥 LEVEL 3 (STRONG RECOVERY)
+    else {
+        predSize = last >= 5 ? "SMALL" : "BIG";
+        predColor = (Math.random() > 0.5) ? "RED" : "GREEN";
+    }
+
+    let pred = predSize + " " + predColor;
+
     let displayPred = pred;
-    if(stats.level === 2) displayPred = pred + " 🔥";
-    if(stats.level === 3) displayPred = pred + " 💎";
+    if(stats.level === 2) displayPred += " 🔥";
+    if(stats.level === 3) displayPred += " 💎";
 
     document.getElementById("prediction-text").innerText = displayPred;
-    
+
     const circle = document.getElementById("glow-circle");
-    if(pred === "BIG") {
+
+    if(pred.includes("BIG")){
         circle.style.borderColor = "var(--neon-green)";
         document.getElementById("prediction-text").style.color = "var(--neon-green)";
     } else {
         circle.style.borderColor = "var(--neon-red)";
         document.getElementById("prediction-text").style.color = "var(--neon-red)";
     }
-    
+
     localStorage.setItem("current_pred", pred);
     localStorage.setItem("current_period", nextPeriod);
 }
 
 // ✅ VALIDATE RESULT
 function validateResult(latestResult) {
+
     const actualNum = parseInt(latestResult.number);
     const actualSize = actualNum >= 5 ? "BIG" : "SMALL";
+    const actualColor = actualNum % 2 === 0 ? "RED" : "GREEN";
+
     const savedPred = localStorage.getItem("current_pred");
     const savedPeriod = localStorage.getItem("current_period");
 
     if (savedPeriod === latestResult.issueNumber) {
-        if (savedPred === actualSize) {
+
+        let win = savedPred.includes(actualSize) || savedPred.includes(actualColor);
+
+        if (win) {
             stats.win++;
-            stats.ws++;
-            stats.ls = 0;
-            stats.level = 1; // Reset to level 1 on win
+            stats.ws++; // no reset
+            stats.level = 1;
         } else {
             stats.loss++;
-            stats.ls++;
-            stats.ws = 0;
-            if (stats.level < 3) stats.level++; // Max 3 Levels
-            else stats.level = 1; // Reset after Level 3
+            stats.ls++; // no reset
+
+            if (stats.level < 3) stats.level++;
+            else stats.level = 1;
         }
+
         localStorage.setItem("siva_stats", JSON.stringify(stats));
-        updateHistory(latestResult.issueNumber, actualSize, savedPred === actualSize);
+
+        updateHistory(
+            latestResult.issueNumber,
+            savedPred,
+            actualSize + " " + actualColor,
+            win
+        );
     }
 }
 
+// UI
 function updateUI() {
     document.getElementById("win-strike").innerText = stats.ws;
     document.getElementById("loss-strike").innerText = stats.ls;
@@ -161,18 +195,28 @@ function updateUI() {
     document.getElementById("level-tag").innerText = "LEVEL " + stats.level;
 }
 
-function updateHistory(period, res, isWin) {
+// HISTORY
+function updateHistory(period, pred, actual, isWin) {
+
     const log = document.getElementById("history-log");
     if(log.innerText.includes("Loading")) log.innerHTML = "";
-    
+
     const div = document.createElement("div");
     div.className = "log-item";
-    div.innerHTML = `<span>#${period.slice(-3)}: ${res}</span> <span style="color:${isWin?'var(--neon-green)':'var(--neon-red)'}">${isWin?'WIN':'LOSS'}</span>`;
+
+    div.innerHTML = `
+        <span>${period} → ${pred} → ${actual}</span>
+        <span style="color:${isWin?'var(--neon-green)':'var(--neon-red)'}">
+            ${isWin?'WIN':'LOSS'}
+        </span>
+    `;
+
     log.prepend(div);
 }
 
 setInterval(syncServer, 3000);
 window.onload = syncServer;
+
 </script>
 </body>
 </html>
