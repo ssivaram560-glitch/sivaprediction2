@@ -63,96 +63,146 @@
 
 <script>
 
-let stats = JSON.parse(localStorage.getItem("siva_stats")) || { win:0, loss:0, ws:0, ls:0, level:1 };
-let lastCheckedPeriod = null;
+let stats = JSON.parse(localStorage.getItem("siva_stats")) || {
+    win:0, loss:0, ws:0, ls:0, level:1
+};
+
+let historyData = JSON.parse(localStorage.getItem("full_history")) || [];
+let lastCheckedPeriod = localStorage.getItem("last_period");
 
 // 🔥 SERVER
 async function syncServer() {
     try {
         const res = await fetch("https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t=" + Date.now());
         const data = await res.json();
-        const latest = data.data.list[0];
 
-        const currentPeriod = latest.issueNumber;
-        const nextPeriod = (BigInt(currentPeriod) + 1n).toString();
+        const latest = data.data.list[0];
+        const period = latest.issueNumber;
+        const num = parseInt(latest.number);
+        const nextPeriod = (BigInt(period) + 1n).toString();
 
         document.getElementById("period-num").innerText = "PERIOD: " + nextPeriod;
 
         let seconds = 60 - new Date().getSeconds();
         document.getElementById("timer").innerText = seconds + "s";
 
-        if (lastCheckedPeriod && lastCheckedPeriod !== currentPeriod) {
-            validateResult(latest);
+        // FIRST LOAD
+        if(!lastCheckedPeriod){
+            lastCheckedPeriod = period;
+            localStorage.setItem("last_period", period);
+            generatePrediction(nextPeriod);
+            return;
         }
 
-        lastCheckedPeriod = currentPeriod;
-        generatePrediction(nextPeriod, data.data.list);
+        // NEW RESULT
+        if(period !== lastCheckedPeriod){
+
+            validateResult(num, lastCheckedPeriod);
+
+            // 🔥 SAVE FULL HISTORY (PERMANENT)
+            historyData.unshift(num);
+            localStorage.setItem("full_history", JSON.stringify(historyData));
+
+            lastCheckedPeriod = period;
+            localStorage.setItem("last_period", period);
+
+            generatePrediction(nextPeriod);
+        }
+
         updateUI();
 
-    } catch (e) {
-        document.getElementById("period-num").innerText = "SERVER ERROR";
+    } catch(e){
+        document.getElementById("period-num").innerText="SERVER ERROR";
     }
 }
 
-// 🔥 10 FORMULAS
+// 🔥 FORMULAS (10 SYSTEM)
 function formulas(n1,n2,n3){
-
     return [
+        (n1+n2)%10,
+        (n1*n2)%10,
+        (n1+n2+n3)%10,
+        Math.abs(n1-n2)%10,
+        (n1*3+n2)%10,
+        (n2*3+n3)%10,
+        (n1+n2*2)%10,
+        (n1*2+n3)%10,
         Math.abs(Math.sin(n1)*10)%10,
-        Math.abs(Math.cos(n1)*10)%10,
-        Math.abs(Math.tan(n1)%10),
-        Math.abs(Math.log(n1+1)*5)%10,
-        Math.abs((n1+n2)%10),
-        Math.abs((n1*n2)%10),
-        Math.abs(Math.sqrt(n1*n2*10)%10),
-        Math.abs((n1+n2+n3)%10),
-        Math.abs((n1*2 + n2*3)%10),
-        Math.abs((n1+n2*2+n3*3)%10)
+        Math.abs(Math.cos(n2)*10)%10
     ];
 }
 
-// 🔥 FIND BEST FORMULA
-function getBestFormula(list){
+// 🔥 FULL HISTORY BEST FORMULA (UNDER 2 LEVEL TARGET)
+function getBestFormula(){
 
-    let last10 = list.slice(0,10).map(x=>parseInt(x.number));
+    if(historyData.length < 20) return 0;
+
     let score = new Array(10).fill(0);
 
-    for(let i=3;i<last10.length;i++){
+    for(let f=0; f<10; f++){
 
-        let n1 = last10[i];
-        let n2 = last10[i+1] || last10[i];
-        let n3 = last10[i+2] || last10[i];
+        let tempLevel = 1;
+        let wins = 0;
 
-        let actual = last10[i-1]>=5?"BIG":"SMALL";
+        for(let i=0;i<historyData.length-3;i++){
 
-        let results = formulas(n1,n2,n3);
+            let n1 = historyData[i];
+            let n2 = historyData[i+1];
+            let n3 = historyData[i+2];
 
-        results.forEach((val,idx)=>{
+            let actual = historyData[i+3]>=5?"BIG":"SMALL";
+
+            let val = formulas(n1,n2,n3)[f];
             let pred = val>=5?"BIG":"SMALL";
-            if(pred===actual) score[idx]++;
-        });
+
+            let win = pred === actual;
+
+            if(win){
+                wins++;
+                tempLevel = 1;
+            }else{
+                tempLevel++;
+            }
+
+            // 🔥 only count if within 2 level
+            if(win && tempLevel <= 2){
+                score[f] += 2; // extra weight
+            } else if(win){
+                score[f] += 1;
+            }
+        }
     }
 
-    let bestIndex = score.indexOf(Math.max(...score));
-    localStorage.setItem("best_formula",bestIndex);
+    let best = score.indexOf(Math.max(...score));
+    localStorage.setItem("best_formula", best);
 
-    return bestIndex;
+    return best;
 }
 
 // 🔥 PREDICTION
-function generatePrediction(nextPeriod,list){
+function generatePrediction(nextPeriod){
 
-    let last = list.slice(0,3).map(x=>parseInt(x.number));
+    let best = localStorage.getItem("best_formula");
 
-    let best = getBestFormula(list);
+    if(best===null){
+        best = getBestFormula();
+    }else{
+        best = parseInt(best);
+    }
+
+    let last = historyData.slice(0,3);
+
+    if(last.length < 3){
+        document.getElementById("prediction-text").innerText="---";
+        return;
+    }
 
     let vals = formulas(last[0],last[1],last[2]);
+    let num = Math.floor(vals[best]);
 
-    let final = Math.floor(vals[best]);
+    let pred = num>=5?"BIG":"SMALL";
 
-    let pred = final>=5?"BIG":"SMALL";
-
-    // LEVEL SYSTEM
+    // 🔥 LEVEL SYSTEM (STRICT)
     if(stats.level===2){
         pred = pred==="BIG"?"SMALL":"BIG";
     }
@@ -160,8 +210,7 @@ function generatePrediction(nextPeriod,list){
         pred = last[0]>=5?"SMALL":"BIG";
     }
     else if(stats.level===4){
-        pred = Math.random()>0.5?"BIG":"SMALL";
-        stats.level=1;
+        pred = (last[0]+last[1])%2===0?"BIG":"SMALL";
     }
 
     document.getElementById("prediction-text").innerText = pred;
@@ -180,40 +229,34 @@ function generatePrediction(nextPeriod,list){
     localStorage.setItem("current_period", nextPeriod);
 }
 
-// CHECK
-function validateResult(latest){
+// 🔥 RESULT CHECK (NO BREAK STRIKE)
+function validateResult(num, period){
 
-    let num = parseInt(latest.number);
     let actual = num>=5?"BIG":"SMALL";
-
     let pred = localStorage.getItem("current_pred");
-    let period = localStorage.getItem("current_period");
 
-    if(period === latest.issueNumber){
+    let win = pred === actual;
 
-        let win = pred === actual;
+    if(win){
+        stats.win++;
+        stats.ws++;
+        stats.ls=0;
+        stats.level=1;
+    }else{
+        stats.loss++;
+        stats.ls++;
+        stats.ws=0;
 
-        if(win){
-            stats.win++;
-            stats.ws++;
-            stats.ls=0;
-            stats.level=1;
-        }else{
-            stats.loss++;
-            stats.ls++;
-            stats.ws=0;
-
-            if(stats.level<4) stats.level++;
-            else stats.level=1;
-        }
-
-        localStorage.setItem("siva_stats",JSON.stringify(stats));
-
-        addHistory(latest.issueNumber,pred,actual,win);
+        if(stats.level<4) stats.level++;
+        else stats.level=1;
     }
+
+    localStorage.setItem("siva_stats",JSON.stringify(stats));
+
+    addHistory(period,pred,actual,win);
 }
 
-// UI
+// 🔥 UI
 function updateUI(){
     document.getElementById("win-strike").innerText=stats.ws;
     document.getElementById("loss-strike").innerText=stats.ls;
@@ -222,23 +265,45 @@ function updateUI(){
     document.getElementById("level-tag").innerText="LEVEL "+stats.level;
 }
 
-// HISTORY
+// 🔥 HISTORY PERMANENT SAVE
 function addHistory(p,pred,act,win){
+
+    let all = JSON.parse(localStorage.getItem("history_log")) || [];
+
+    all.unshift({p, pred, act, win});
+
+    localStorage.setItem("history_log", JSON.stringify(all));
+
+    renderHistory();
+}
+
+// 🔥 RENDER HISTORY (NO LOSS)
+function renderHistory(){
+
     let box=document.getElementById("history-log");
+    let all = JSON.parse(localStorage.getItem("history_log")) || [];
 
-    let div=document.createElement("div");
-    div.className="log-item";
+    box.innerHTML="";
 
-    div.innerHTML = `
-    <span>${p} → ${pred} → ${act}</span>
-    <span style="color:${win?'lime':'red'}">${win?'WIN':'LOSS'}</span>
-    `;
+    all.slice(0,100).forEach(i=>{
+        let div=document.createElement("div");
+        div.className="log-item";
 
-    box.prepend(div);
+        div.innerHTML = `
+        <span>${i.p} → ${i.pred}</span>
+        <span style="color:${i.win?'lime':'red'}">${i.win?'WIN':'LOSS'}</span>
+        `;
+
+        box.appendChild(div);
+    });
 }
 
 setInterval(syncServer,3000);
-window.onload=syncServer;
+
+window.onload=()=>{
+    renderHistory();
+    syncServer();
+};
 
 </script>
 </body>
