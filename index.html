@@ -60,7 +60,6 @@
 
     <div class="history-box" id="history-log">History Loading...</div>
 </div>
-
 <script>
 
 let stats = JSON.parse(localStorage.getItem("siva_stats")) || {
@@ -90,6 +89,14 @@ async function syncServer() {
         if(!lastCheckedPeriod){
             lastCheckedPeriod = period;
             localStorage.setItem("last_period", period);
+
+            // 🔥 INITIAL HISTORY LOAD (FULL)
+            data.data.list.forEach(i=>{
+                historyData.push(parseInt(i.number));
+            });
+            localStorage.setItem("full_history", JSON.stringify(historyData));
+
+            renderHistory();
             generatePrediction(nextPeriod);
             return;
         }
@@ -99,13 +106,14 @@ async function syncServer() {
 
             validateResult(num, lastCheckedPeriod);
 
-            // 🔥 SAVE FULL HISTORY (PERMANENT)
+            // 🔥 SAVE RESULT
             historyData.unshift(num);
             localStorage.setItem("full_history", JSON.stringify(historyData));
 
             lastCheckedPeriod = period;
             localStorage.setItem("last_period", period);
 
+            renderHistory();
             generatePrediction(nextPeriod);
         }
 
@@ -116,7 +124,7 @@ async function syncServer() {
     }
 }
 
-// 🔥 FORMULAS (10 SYSTEM)
+// 🔥 FORMULAS
 function formulas(n1,n2,n3){
     return [
         (n1+n2)%10,
@@ -132,17 +140,16 @@ function formulas(n1,n2,n3){
     ];
 }
 
-// 🔥 FULL HISTORY BEST FORMULA (UNDER 2 LEVEL TARGET)
+// 🔥 BEST FORMULA (FULL HISTORY + UNDER 2 LEVEL)
 function getBestFormula(){
 
-    if(historyData.length < 20) return 0;
+    if(historyData.length < 30) return 0;
 
     let score = new Array(10).fill(0);
 
     for(let f=0; f<10; f++){
 
         let tempLevel = 1;
-        let wins = 0;
 
         for(let i=0;i<historyData.length-3;i++){
 
@@ -158,17 +165,25 @@ function getBestFormula(){
             let win = pred === actual;
 
             if(win){
-                wins++;
+
+                // 🔥 HEAVY WEIGHT FOR LEVEL 1
+                if(tempLevel === 1) score[f] += 5;
+
+                // 🔥 GOOD WEIGHT FOR LEVEL 2
+                else if(tempLevel === 2) score[f] += 3;
+
+                // 🔥 LOW WEIGHT AFTER 2
+                else score[f] += 1;
+
                 tempLevel = 1;
+
             }else{
                 tempLevel++;
             }
 
-            // 🔥 only count if within 2 level
-            if(win && tempLevel <= 2){
-                score[f] += 2; // extra weight
-            } else if(win){
-                score[f] += 1;
+            // 🔥 PENALTY FOR LONG LOSS
+            if(tempLevel >= 3){
+                score[f] -= 3;
             }
         }
     }
@@ -202,7 +217,7 @@ function generatePrediction(nextPeriod){
 
     let pred = num>=5?"BIG":"SMALL";
 
-    // 🔥 LEVEL SYSTEM (STRICT)
+    // LEVEL SYSTEM
     if(stats.level===2){
         pred = pred==="BIG"?"SMALL":"BIG";
     }
@@ -229,7 +244,7 @@ function generatePrediction(nextPeriod){
     localStorage.setItem("current_period", nextPeriod);
 }
 
-// 🔥 RESULT CHECK (NO BREAK STRIKE)
+// 🔥 RESULT CHECK (FIXED)
 function validateResult(num, period){
 
     let actual = num>=5?"BIG":"SMALL";
@@ -256,16 +271,16 @@ function validateResult(num, period){
     addHistory(period,pred,actual,win);
 }
 
-// 🔥 UI
+// 🔥 UI UPDATE (FIXED RESET BUG)
 function updateUI(){
-    document.getElementById("win-strike").innerText=stats.ws;
-    document.getElementById("loss-strike").innerText=stats.ls;
-    document.getElementById("total-win").innerText=stats.win;
-    document.getElementById("total-loss").innerText=stats.loss;
+    document.getElementById("win-strike").innerText=stats.ws || 0;
+    document.getElementById("loss-strike").innerText=stats.ls || 0;
+    document.getElementById("total-win").innerText=stats.win || 0;
+    document.getElementById("total-loss").innerText=stats.loss || 0;
     document.getElementById("level-tag").innerText="LEVEL "+stats.level;
 }
 
-// 🔥 HISTORY PERMANENT SAVE
+// 🔥 HISTORY SAVE (FULL GAME RESULT)
 function addHistory(p,pred,act,win){
 
     let all = JSON.parse(localStorage.getItem("history_log")) || [];
@@ -273,11 +288,9 @@ function addHistory(p,pred,act,win){
     all.unshift({p, pred, act, win});
 
     localStorage.setItem("history_log", JSON.stringify(all));
-
-    renderHistory();
 }
 
-// 🔥 RENDER HISTORY (NO LOSS)
+// 🔥 RENDER HISTORY (LIVE GAME RESULT)
 function renderHistory(){
 
     let box=document.getElementById("history-log");
@@ -290,7 +303,7 @@ function renderHistory(){
         div.className="log-item";
 
         div.innerHTML = `
-        <span>${i.p} → ${i.pred}</span>
+        <span>${i.p} → ${i.act}</span>
         <span style="color:${i.win?'lime':'red'}">${i.win?'WIN':'LOSS'}</span>
         `;
 
@@ -302,9 +315,13 @@ setInterval(syncServer,3000);
 
 window.onload=()=>{
     renderHistory();
+    updateUI();
     syncServer();
 };
 
-</script>
+        </script>
+
+        
+    
 </body>
 </html>
