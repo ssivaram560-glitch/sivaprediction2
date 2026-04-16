@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIVA ULTRA AI - Sureshot V54</title>
+    <title>SIVA PREDICT - Sureshot V54</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -60,268 +60,190 @@
 
     <div class="history-box" id="history-log">History Loading...</div>
 </div>
+
 <script>
 
-let stats = JSON.parse(localStorage.getItem("siva_stats")) || {
-    win:0, loss:0, ws:0, ls:0, level:1
-};
+// ===== DATA =====
+let historyData = [];
+let lastPeriod = null;
+let lastPred = null;
+let lossCount = 0;
 
-let historyData = JSON.parse(localStorage.getItem("full_history")) || [];
-let lastCheckedPeriod = localStorage.getItem("last_period");
+let stats = {tw:0, tl:0, ws:0, ls:0};
 
-// 🔥 SERVER
-async function syncServer() {
-    try {
-        const res = await fetch("https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t=" + Date.now());
-        const data = await res.json();
+// ===== TIMER =====
+let serverTime = 60;
 
-        const latest = data.data.list[0];
-        const period = latest.issueNumber;
-        const num = parseInt(latest.number);
-        const nextPeriod = (BigInt(period) + 1n).toString();
+function startTimer(){
+    setInterval(()=>{
+        serverTime--;
+        if(serverTime < 0) serverTime = 59;
+        document.getElementById("timer").innerText = serverTime + "s";
+    },1000);
+}
 
-        document.getElementById("period-num").innerText = "PERIOD: " + nextPeriod;
+// ===== SERVER =====
+async function syncServer(){
+    try{
 
-        let seconds = 60 - new Date().getSeconds();
-        document.getElementById("timer").innerText = seconds + "s";
+        let res = await fetch("https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t="+Date.now());
+        let data = await res.json();
 
-        // FIRST LOAD
-        if(!lastCheckedPeriod){
-            lastCheckedPeriod = period;
-            localStorage.setItem("last_period", period);
+        let list = data.data.list;
+        let latest = list[0];
 
-            // 🔥 INITIAL HISTORY LOAD (FULL)
-            data.data.list.forEach(i=>{
-                historyData.push(parseInt(i.number));
-            });
-            localStorage.setItem("full_history", JSON.stringify(historyData));
+        let period = latest.issueNumber;
+        let num = parseInt(latest.number);
+        let next = (BigInt(period)+1n).toString();
 
+        document.getElementById("period-num").innerText = "PERIOD: "+next;
+
+        // 🔥 TIMER FIX
+        serverTime = 60 - new Date().getSeconds();
+
+        if(!lastPeriod){
+            lastPeriod = period;
+            historyData = list.map(i=>parseInt(i.number));
             renderHistory();
-            generatePrediction(nextPeriod);
+            generatePrediction();
             return;
         }
 
-        // NEW RESULT
-        if(period !== lastCheckedPeriod){
+        if(period !== lastPeriod){
 
-            validateResult(num, lastCheckedPeriod);
+            checkResult(num,period);
 
-            // 🔥 SAVE RESULT
             historyData.unshift(num);
-            localStorage.setItem("full_history", JSON.stringify(historyData));
+            historyData = historyData.slice(0,50);
 
-            lastCheckedPeriod = period;
-            localStorage.setItem("last_period", period);
+            lastPeriod = period;
 
-            renderHistory();
-            generatePrediction(nextPeriod);
+            generatePrediction();
+            updateStatsUI();
         }
 
-        updateUI();
-
-    } catch(e){
-        document.getElementById("period-num").innerText="SERVER ERROR";
+    }catch(e){
+        document.getElementById("period-num").innerText="SERVER ERROR ❌";
     }
 }
 
-// 🔥 FORMULAS
-function formulas(n1,n2,n3){
-    return [
-        (n1+n2)%10,
-        (n1*n2)%10,
-        (n1+n2+n3)%10,
-        Math.abs(n1-n2)%10,
-        (n1*3+n2)%10,
-        (n2*3+n3)%10,
-        (n1+n2*2)%10,
-        (n1*2+n3)%10,
-        Math.abs(Math.sin(n1)*10)%10,
-        Math.abs(Math.cos(n2)*10)%10
-    ];
-}
+// ===== RESULT =====
+function checkResult(num,period){
 
-// 🔥 BEST FORMULA (FULL HISTORY + UNDER 2 LEVEL)
-function getBestFormula(){
+    let actual = num>=5?"BIG":"SMALL";
 
-    if(historyData.length < 30) return 0;
+    if(!lastPred) return;
 
-    let score = new Array(10).fill(0);
-
-    for(let f=0; f<10; f++){
-
-        let tempLevel = 1;
-
-        for(let i=0;i<historyData.length-3;i++){
-
-            let n1 = historyData[i];
-            let n2 = historyData[i+1];
-            let n3 = historyData[i+2];
-
-            let actual = historyData[i+3]>=5?"BIG":"SMALL";
-
-            let val = formulas(n1,n2,n3)[f];
-            let pred = val>=5?"BIG":"SMALL";
-
-            let win = pred === actual;
-
-            if(win){
-
-                // 🔥 HEAVY WEIGHT FOR LEVEL 1
-                if(tempLevel === 1) score[f] += 5;
-
-                // 🔥 GOOD WEIGHT FOR LEVEL 2
-                else if(tempLevel === 2) score[f] += 3;
-
-                // 🔥 LOW WEIGHT AFTER 2
-                else score[f] += 1;
-
-                tempLevel = 1;
-
-            }else{
-                tempLevel++;
-            }
-
-            // 🔥 PENALTY FOR LONG LOSS
-            if(tempLevel >= 3){
-                score[f] -= 3;
-            }
-        }
+    if(lastPred==="SKIP"){
+        addHistory(period,"SKIP",actual,"SKIP");
+        renderHistory();
+        return;
     }
 
-    let best = score.indexOf(Math.max(...score));
-    localStorage.setItem("best_formula", best);
+    let win = lastPred===actual;
 
-    return best;
-}
-
-// 🔥 PREDICTION
-function generatePrediction(nextPeriod){
-
-    let best = localStorage.getItem("best_formula");
-
-    if(best===null){
-        best = getBestFormula();
+    if(win){
+        stats.tw++; stats.ws++; stats.ls=0;
+        lossCount=0;
     }else{
-        best = parseInt(best);
+        stats.tl++; stats.ls++; stats.ws=0;
+        lossCount++;
+    }
+
+    addHistory(period,lastPred,actual,win?"WIN":"LOSS");
+
+    renderHistory();
+}
+
+// ===== HISTORY SAVE =====
+function addHistory(period,pred,actual,result){
+
+    let log = JSON.parse(localStorage.getItem("history_log")) || [];
+
+    log.unshift({
+        period: period.slice(-3),
+        pred,
+        actual,
+        result
+    });
+
+    localStorage.setItem("history_log",JSON.stringify(log.slice(0,50)));
+}
+
+// ===== SIMPLE STRONG LOGIC =====
+function generatePrediction(){
+
+    if(historyData.length < 5){
+        document.getElementById("prediction-text").innerText="WAIT";
+        return;
     }
 
     let last = historyData.slice(0,3);
 
-    if(last.length < 3){
-        document.getElementById("prediction-text").innerText="---";
-        return;
+    let sum = (last[0] + last[1] + last[2]) % 10;
+
+    let pred = sum>=5 ? "BIG" : "SMALL";
+
+    // 🔥 LOSS CONTROL
+    if(lossCount === 1){
+        pred = lastPred;
     }
 
-    let vals = formulas(last[0],last[1],last[2]);
-    let num = Math.floor(vals[best]);
-
-    let pred = num>=5?"BIG":"SMALL";
-
-    // LEVEL SYSTEM
-    if(stats.level===2){
-        pred = pred==="BIG"?"SMALL":"BIG";
-    }
-    else if(stats.level===3){
-        pred = last[0]>=5?"SMALL":"BIG";
-    }
-    else if(stats.level===4){
-        pred = (last[0]+last[1])%2===0?"BIG":"SMALL";
+    if(lossCount >= 2){
+        pred = lastPred==="BIG" ? "SMALL" : "BIG";
+        lossCount = 0;
     }
 
-    document.getElementById("prediction-text").innerText = pred;
+    lastPred = pred;
 
-    let circle = document.getElementById("glow-circle");
+    let el = document.getElementById("prediction-text");
+    el.innerText = pred;
+    el.style.color = pred==="BIG" ? "#00ff88" : "#ff3131";
 
-    if(pred==="BIG"){
-        circle.style.borderColor="var(--neon-green)";
-        document.getElementById("prediction-text").style.color="var(--neon-green)";
-    }else{
-        circle.style.borderColor="var(--neon-red)";
-        document.getElementById("prediction-text").style.color="var(--neon-red)";
-    }
-
-    localStorage.setItem("current_pred", pred);
-    localStorage.setItem("current_period", nextPeriod);
+    // REMOVE LEVEL
+    let tag = document.getElementById("level-tag");
+    if(tag) tag.style.display = "none";
 }
 
-// 🔥 RESULT CHECK (FIXED)
-function validateResult(num, period){
-
-    let actual = num>=5?"BIG":"SMALL";
-    let pred = localStorage.getItem("current_pred");
-
-    let win = pred === actual;
-
-    if(win){
-        stats.win++;
-        stats.ws++;
-        stats.ls=0;
-        stats.level=1;
-    }else{
-        stats.loss++;
-        stats.ls++;
-        stats.ws=0;
-
-        if(stats.level<4) stats.level++;
-        else stats.level=1;
-    }
-
-    localStorage.setItem("siva_stats",JSON.stringify(stats));
-
-    addHistory(period,pred,actual,win);
-}
-
-// 🔥 UI UPDATE (FIXED RESET BUG)
-function updateUI(){
-    document.getElementById("win-strike").innerText=stats.ws || 0;
-    document.getElementById("loss-strike").innerText=stats.ls || 0;
-    document.getElementById("total-win").innerText=stats.win || 0;
-    document.getElementById("total-loss").innerText=stats.loss || 0;
-    document.getElementById("level-tag").innerText="LEVEL "+stats.level;
-}
-
-// 🔥 HISTORY SAVE (FULL GAME RESULT)
-function addHistory(p,pred,act,win){
-
-    let all = JSON.parse(localStorage.getItem("history_log")) || [];
-
-    all.unshift({p, pred, act, win});
-
-    localStorage.setItem("history_log", JSON.stringify(all));
-}
-
-// 🔥 RENDER HISTORY (LIVE GAME RESULT)
+// ===== HISTORY UI =====
 function renderHistory(){
 
-    let box=document.getElementById("history-log");
-    let all = JSON.parse(localStorage.getItem("history_log")) || [];
+    let box = document.getElementById("history-log");
+    let log = JSON.parse(localStorage.getItem("history_log")) || [];
 
-    box.innerHTML="";
+    box.innerHTML = "";
 
-    all.slice(0,100).forEach(i=>{
-        let div=document.createElement("div");
-        div.className="log-item";
+    log.forEach(i=>{
+        let div = document.createElement("div");
+        div.className = "log-item";
+
+        let color = i.result==="WIN"?"lime":i.result==="LOSS"?"red":"yellow";
 
         div.innerHTML = `
-        <span>${i.p} → ${i.act}</span>
-        <span style="color:${i.win?'lime':'red'}">${i.win?'WIN':'LOSS'}</span>
+        <span>#${i.period} → ${i.pred} → ${i.actual}</span>
+        <span style="color:${color}">${i.result}</span>
         `;
 
         box.appendChild(div);
     });
 }
 
+// ===== STATS =====
+function updateStatsUI(){
+    document.getElementById("win-strike").innerText = stats.ws;
+    document.getElementById("loss-strike").innerText = stats.ls;
+    document.getElementById("total-win").innerText = stats.tw;
+    document.getElementById("total-loss").innerText = stats.tl;
+}
+
+// ===== START =====
 setInterval(syncServer,3000);
 
-window.onload=()=>{
-    renderHistory();
-    updateUI();
+window.onload = ()=>{
+    startTimer();
     syncServer();
 };
 
-        </script>
-
-        
-    
+</script>
 </body>
 </html>
