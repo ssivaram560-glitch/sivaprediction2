@@ -1,249 +1,332 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ta">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIVA PREDICT - Sureshot V54</title>
-    <style>
-        :root {
-            --neon-blue: #00f3ff;
-            --neon-green: #00ff88;
-            --neon-red: #ff3131;
-            --bg: #020617;
-            --card: #0f172a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIVA ULTRA AI V57.5 - DRAGON SHIELD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap');
+:root{--bg:#06060f;--panel:#0b0b1d;--border:#151528;--accent:#00e5ff;--green:#00ff88;--red:#ff2d55;--gold:#ffd60a;--violet:#bf5af2;--orange:#ff9f0a;--text:#b0c4de;--dim:#363660;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'Rajdhani',sans-serif;color:var(--text);min-height:100vh;padding-bottom:70px;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 35% at 50% 0%,rgba(0,229,255,0.07) 0%,transparent 70%),linear-gradient(rgba(0,229,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.018) 1px,transparent 1px);background-size:auto,28px 28px,28px 28px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:8px 10px 10px;}
 
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 15px; margin: 0; }
-        .container { width: 100%; max-width: 420px; background: var(--card); border-radius: 25px; padding: 20px; border: 1px solid #1e293b; box-shadow: 0 0 40px rgba(0, 243, 255, 0.15); text-align: center; }
-        .header h1 { font-size: 1.4rem; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        
-        .period-box { margin: 20px 0; }
-        #period-num { font-weight: bold; color: #94a3b8; font-size: 1.1rem; }
+/* LICENSE LOCK */
+#keyLockScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.lock-box { background: var(--panel); border: 2px solid var(--accent); box-shadow: 0 0 30px rgba(0, 229, 255, 0.15); border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; position: relative; }
+.lock-box h2 { font-family: 'Orbitron', monospace; font-size: 18px; color: var(--accent); margin-bottom: 8px; letter-spacing: 2px; }
+.lock-box input { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-family: 'Orbitron', monospace; text-align: center; margin-bottom: 15px; outline: none; }
+.lock-box button { width: 100%; padding: 12px; background: linear-gradient(90deg, var(--accent), var(--violet)); border: none; border-radius: 8px; color: #000; font-family: 'Orbitron', monospace; font-weight: 900; cursor: pointer; transition: 0.3s; }
+.key-err { color: var(--red); font-size: 11px; margin-top: 12px; display: none; background: rgba(255, 45, 85, 0.1); padding: 8px; border-radius: 6px; }
 
-        .circle-area { width: 180px; height: 180px; border: 4px solid var(--neon-blue); border-radius: 50%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.4s; }
-        .pred-text { font-size: 2rem; font-weight: 800; }
-        .level-badge { background: #fbbf24; color: black; padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; margin-top: 5px; }
+/* UI COMPONENTS */
+.hdr{text-align:center;padding:10px 0;}
+.hdr h1{font-family:'Orbitron',monospace;font-size:16px;color:var(--accent);letter-spacing:2px;text-shadow:0 0 15px var(--accent);}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.18);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--green);margin-top:5px;}
+.dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-        .strike-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .strike-card { background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 12px; border-left: 4px solid var(--neon-blue); }
-        .strike-val { font-size: 1.3rem; font-weight: bold; display: block; color: var(--neon-blue); }
-        .strike-lab { font-size: 0.65rem; color: #64748b; }
+.live-date-panel { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-family: 'Orbitron', monospace; font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 10px; }
+.pt-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;}
+.period-box,.timer-box{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:10px;}
+.period-num{font-family:'Orbitron',monospace;font-size:14px;color:var(--gold);}
+.timer-val{font-family:'Orbitron',monospace;font-size:30px;font-weight:900;color:var(--accent);}
 
-        .history-box { margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; text-align: left; border: 1px solid #1e293b; }
-        .log-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #1e293b; }
-    </style>
+/* MAIN CARD */
+.main-card{position:relative;background:var(--panel);border-radius:16px;padding:25px 15px;text-align:center;overflow:hidden;border:1px solid var(--border);transition: 0.5s;}
+.main-card.color-mode{border:2px solid var(--accent);box-shadow:0 0 30px rgba(0,229,255,0.15);}
+.main-card.size-mode{border:2px solid var(--gold);box-shadow:0 0 30px rgba(255,214,10,0.15);}
+
+.pred-ball{width:80px;height:80px;border-radius:50%;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:24px;font-weight:900;border:4px solid rgba(255,255,255,0.1);}
+.ball-red{background:radial-gradient(circle at 30% 30%,#ff6680,var(--red));box-shadow:0 0 30px var(--red);}
+.ball-green{background:radial-gradient(circle at 30% 30%,#66ffbb,var(--green));box-shadow:0 0 30px var(--green);}
+.ball-violet{background:radial-gradient(circle at 30% 30%,#d68fff,var(--violet));box-shadow:0 0 30px var(--violet);}
+.ball-skip{background:#444;box-shadow:none;}
+
+.size-big{font-size:48px;font-weight:900;color:var(--gold);text-shadow:0 0 20px var(--gold);}
+.size-small{font-size:48px;font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:15px 0;}
+.stat-card{background:var(--panel);border:1px solid var(--border);padding:10px 2px;border-radius:8px;text-align:center;}
+.stat-v{font-family:'Orbitron',monospace;font-size:18px;font-weight:bold;}
+.stat-l{font-size:8px;color:var(--dim);margin-top:2px;}
+
+/* NAV */
+.nav-bar{position:fixed;bottom:0;width:100%;max-width:440px;height:65px;background:#090918;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);z-index:1000;}
+.nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--dim);font-size:10px;cursor:pointer;}
+.nav-item.active{color:var(--accent);}
+
+/* HISTORY */
+.hist-row{display:grid;grid-template-columns:110px 1fr 60px 60px;padding:10px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:11px;align-items:center;}
+.tag{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:bold;}
+.tw{background:rgba(0,255,136,0.1);color:var(--green);}
+.tl{background:rgba(255,45,85,0.1);color:var(--red);}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>SIVA ULTRA AI</h1>
-        <span style="font-size: 0.6rem; color: var(--neon-green);">LIVE SERVER SYNC ACTIVE</span>
+<!-- Login Screen -->
+<div id="keyLockScreen">
+    <div class="lock-box">
+        <h2>SIVA ULTRA AI V57.5</h2>
+        <p style="font-size:10px; margin-bottom:15px;">DRAGON SHIELD PROTOCOL ACTIVE</p>
+        <input type="text" id="licenseKeyInput" placeholder="ENTER LICENSE KEY">
+        <button onclick="validateLicense()">ACTIVATE SYSTEM</button>
+        <div id="keyErrorMsg" class="key-err">INVALID OR EXPIRED KEY</div>
+    </div>
+</div>
+
+<!-- Main App -->
+<div class="wrap" id="mainAppContent" style="display:none;">
+    <div class="hdr">
+        <h1>SIVA ULTRA AI V57.5</h1>
+        <div class="live-badge"><div class="dot"></div>LIVE SERVER CONNECTED</div>
     </div>
 
-    <div class="period-box">
-        <div id="period-num">CONNECTING...</div>
-        <div id="timer" style="color:white; font-size: 1.2rem; margin-top: 5px;">00s</div>
+    <div class="live-date-panel">
+        <span>DATE: <span id="liveDateStr">--/--/----</span></span>
+        <span>TIME: <span id="liveTimeStr">00:00:00</span></span>
     </div>
 
-    <div class="circle-area" id="glow-circle">
-        <div class="pred-text" id="prediction-text">---</div>
-        <div class="level-badge" id="level-tag">LEVEL 1</div>
+    <div id="tabPrediction" class="app-page active">
+        <div class="pt-row">
+            <div class="period-box">
+                <div style="font-size:9px; color:var(--dim);">CURRENT PERIOD</div>
+                <div class="period-num" id="periodNum">--------</div>
+            </div>
+            <div class="timer-box">
+                <div style="font-size:9px; color:var(--dim);">NEXT IN</div>
+                <div class="timer-val" id="timerVal">00</div>
+            </div>
+        </div>
+
+        <div class="main-card" id="mainCard">
+            <div id="waitView">ANALYZING MARKET TRENDS...</div>
+            <div id="predView" style="display:none;">
+                <div id="predTypeBadge" class="tag" style="margin-bottom:10px; display:inline-block;">TARGET</div>
+                <div id="colorDisplay">
+                    <div class="pred-ball" id="predBall">?</div>
+                    <div id="predColorText" style="font-family:'Orbitron'; font-size:24px; font-weight:900;">---</div>
+                </div>
+                <div id="sizeDisplay" style="display:none;">
+                    <div id="predSizeText" class="size-big">---</div>
+                </div>
+                <div style="margin-top:15px; font-size:12px;" id="levelInfo">LEVEL 1 SAFE</div>
+            </div>
+        </div>
     </div>
 
-    <div class="strike-grid">
-        <div class="strike-card"><span class="strike-val" id="win-strike">0</span><span class="strike-lab">Win Strike</span></div>
-        <div class="strike-card" style="border-left-color: var(--neon-red);"><span class="strike-val" id="loss-strike">0</span><span class="strike-lab">Loss Strike</span></div>
-        <div class="strike-card"><span class="strike-val" id="total-win">0</span><span class="strike-lab">Total Win</span></div>
-        <div class="strike-card" style="border-left-color: var(--neon-red);"><span class="strike-val" id="total-loss">0</span><span class="strike-lab">Total Loss</span></div>
+    <div id="tabHistory" class="app-page" style="display:none; padding-bottom:20px;">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-v" id="sTotal">0</div><div class="stat-l">TOTAL</div></div>
+            <div class="stat-card"><div class="stat-v" style="color:var(--green)" id="sWin">0</div><div class="stat-l">WINS</div></div>
+            <div class="stat-card"><div class="stat-v" style="color:var(--red)" id="sLoss">0</div><div class="stat-l">LOSS</div></div>
+            <div class="stat-card"><div class="stat-v" style="color:var(--gold)" id="sWr">0%</div><div class="stat-l">WIN %</div></div>
+        </div>
+        <div style="background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+            <div style="display:grid; grid-template-columns:110px 1fr 60px 60px; padding:10px; background:rgba(0,0,0,0.4); font-size:10px; font-weight:bold;">
+                <div>PERIOD</div><div>NUM</div><div>PRED</div><div>RESULT</div>
+            </div>
+            <div id="histBody"></div>
+        </div>
     </div>
 
-    <div class="history-box" id="history-log">History Loading...</div>
+    <div id="tabProfile" class="app-page" style="display:none;">
+        <div style="background:var(--panel); padding:20px; border-radius:15px; text-align:center; border:1px solid var(--border);">
+            <div style="font-size:50px;">👤</div>
+            <h3 id="profId" style="color:var(--accent); margin:10px 0;">ID: LOADING...</h3>
+            <div style="text-align:left; font-size:12px; margin-top:15px; line-height:2;">
+                <p>LICENSE: <span style="color:var(--gold)">1-DAY EXCLUSIVE</span></p>
+                <p>STATUS: <span style="color:var(--green)">ACTIVE</span></p>
+                <p>DEVICE: <span id="profDev">---</span></p>
+            </div>
+            <button onclick="logout()" style="margin-top:20px; width:100%; padding:10px; background:rgba(255,45,85,0.1); border:1px solid var(--red); color:var(--red); border-radius:8px; cursor:pointer;">LOGOUT SYSTEM</button>
+        </div>
+    </div>
+</div>
+
+<div class="nav-bar" id="bottomNavBar" style="display:none;">
+    <div class="nav-item active" onclick="switchTab('prediction', this)">🎯<br>PREDICT</div>
+    <div class="nav-item" onclick="switchTab('history', this)">📊<br>HISTORY</div>
+    <div class="nav-item" onclick="switchTab('profile', this)">👤<br>PROFILE</div>
 </div>
 
 <script>
-
-// ===== DATA =====
-let historyData = [];
+const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
+let historyData = JSON.parse(localStorage.getItem('SIVA_DATA_V57')) || [];
 let lastPeriod = null;
-let lastPred = null;
-let lossCount = 0;
+let currentLevel = 1;
 
-let stats = {tw:0, tl:0, ws:0, ls:0};
+// 🔑 KEYS
+const VALID_KEYS = ["SIVA-1DAY-AA99", "VIP-SIVA-786", "BOSS-99-SIVA"];
 
-// ===== TIMER =====
-let serverTime = 60;
+function getTodayStr() { return new Date().toISOString().split('T')[0]; }
+function getDevId() { return navigator.userAgent.length + "-" + screen.width; }
 
-function startTimer(){
-    setInterval(()=>{
-        serverTime--;
-        if(serverTime < 0) serverTime = 59;
-        document.getElementById("timer").innerText = serverTime + "s";
-    },1000);
+function validateLicense() {
+    const key = document.getElementById('licenseKeyInput').value.toUpperCase();
+    if(VALID_KEYS.includes(key)) {
+        localStorage.setItem('SIVA_AUTH', key);
+        localStorage.setItem('SIVA_DATE', getTodayStr());
+        location.reload();
+    } else {
+        document.getElementById('keyErrorMsg').style.display = 'block';
+    }
 }
 
-// ===== SERVER =====
-async function syncServer(){
-    try{
+function checkAuth() {
+    const auth = localStorage.getItem('SIVA_AUTH');
+    const date = localStorage.getItem('SIVA_DATE');
+    if(auth && date === getTodayStr()) {
+        document.getElementById('keyLockScreen').style.display = 'none';
+        document.getElementById('mainAppContent').style.display = 'block';
+        document.getElementById('bottomNavBar').style.display = 'grid';
+        startEngine();
+    }
+}
 
-        let res = await fetch("https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t="+Date.now());
-        let data = await res.json();
+function switchTab(id, el) {
+    document.querySelectorAll('.app-page').forEach(p => p.style.display = 'none');
+    document.getElementById('tab' + id.charAt(0).toUpperCase() + id.slice(1)).style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    if(id === 'history') renderHistory();
+    if(id === 'profile') {
+        document.getElementById('profId').innerText = "ID: " + localStorage.getItem('SIVA_AUTH');
+        document.getElementById('profDev').innerText = getDevId();
+    }
+}
 
-        let list = data.data.list;
-        let latest = list[0];
+function updateTime() {
+    const now = new Date();
+    document.getElementById('liveDateStr').innerText = now.toLocaleDateString();
+    document.getElementById('liveTimeStr').innerText = now.toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
 
-        let period = latest.issueNumber;
-        let num = parseInt(latest.number);
-        let next = (BigInt(period)+1n).toString();
+async function startEngine() {
+    setInterval(async () => {
+        try {
+            const res = await fetch(API_URL);
+            const json = await res.json();
+            const list = json.data.list;
+            processData(list);
+        } catch (e) {}
+    }, 2000);
+}
 
-        document.getElementById("period-num").innerText = "PERIOD: "+next;
+function processData(list) {
+    const latest = list[0];
+    const period = latest.issueNumber;
+    const num = parseInt(latest.number);
+    
+    const seconds = 60 - new Date().getSeconds();
+    document.getElementById('timerVal').innerText = seconds < 10 ? "0" + seconds : seconds;
 
-        // 🔥 TIMER FIX
-        serverTime = 60 - new Date().getSeconds();
-
-        if(!lastPeriod){
-            lastPeriod = period;
-            historyData = list.map(i=>parseInt(i.number));
-            renderHistory();
-            generatePrediction();
-            return;
+    if(period !== lastPeriod) {
+        // Result Check
+        if(historyData.length > 0 && historyData[0].result === 'WAIT') {
+            const last = historyData[0];
+            const isWin = last.type === 'COLOR' ? 
+                (num % 2 === 0 ? 'RED' : 'GREEN') === last.pred :
+                (num >= 5 ? 'BIG' : 'SMALL') === last.pred;
+            
+            last.result = isWin ? 'WIN' : 'LOSS';
+            last.openNum = num;
+            currentLevel = isWin ? 1 : (currentLevel >= 4 ? 1 : currentLevel + 1);
         }
 
-        if(period !== lastPeriod){
+        lastPeriod = period;
+        const nextP = BigInt(period) + 1n;
+        document.getElementById('periodNum').innerText = nextP;
 
-            checkResult(num,period);
-
-            historyData.unshift(num);
-            historyData = historyData.slice(0,50);
-
-            lastPeriod = period;
-
-            generatePrediction();
-            updateStatsUI();
-        }
-
-    }catch(e){
-        document.getElementById("period-num").innerText="SERVER ERROR ❌";
+        // Smart Logic
+        const prediction = analyze(list);
+        historyData.unshift({
+            period: nextP.toString(),
+            pred: prediction.val,
+            type: prediction.type,
+            result: 'WAIT',
+            openNum: null
+        });
+        
+        displayPred(prediction);
+        localStorage.setItem('SIVA_DATA_V57', JSON.stringify(historyData.slice(0, 50)));
     }
 }
 
-// ===== RESULT =====
-function checkResult(num,period){
+function analyze(list) {
+    // Advanced Anti-Dragon Switch Logic
+    const lastNum = parseInt(list[0].number);
+    const lastSiz = lastNum >= 5 ? 'BIG' : 'SMALL';
+    const lastClr = lastNum % 2 === 0 ? 'RED' : 'GREEN';
+    
+    let type = Math.random() > 0.5 ? 'SIZE' : 'COLOR';
+    let val = "";
 
-    let actual = num>=5?"BIG":"SMALL";
-
-    if(!lastPred) return;
-
-    if(lastPred==="SKIP"){
-        addHistory(period,"SKIP",actual,"SKIP");
-        renderHistory();
-        return;
+    if(currentLevel === 1) {
+        val = type === 'SIZE' ? (lastSiz === 'BIG' ? 'SMALL' : 'BIG') : (lastClr === 'RED' ? 'GREEN' : 'RED');
+    } else {
+        // Dragon Shield active - aggressive switching
+        val = type === 'SIZE' ? lastSiz : lastClr; 
     }
-
-    let win = lastPred===actual;
-
-    if(win){
-        stats.tw++; stats.ws++; stats.ls=0;
-        lossCount=0;
-    }else{
-        stats.tl++; stats.ls++; stats.ws=0;
-        lossCount++;
-    }
-
-    addHistory(period,lastPred,actual,win?"WIN":"LOSS");
-
-    renderHistory();
+    
+    return { type, val };
 }
 
-// ===== HISTORY SAVE =====
-function addHistory(period,pred,actual,result){
-
-    let log = JSON.parse(localStorage.getItem("history_log")) || [];
-
-    log.unshift({
-        period: period.slice(-3),
-        pred,
-        actual,
-        result
-    });
-
-    localStorage.setItem("history_log",JSON.stringify(log.slice(0,50)));
+function displayPred(p) {
+    document.getElementById('waitView').style.display = 'none';
+    document.getElementById('predView').style.display = 'block';
+    const card = document.getElementById('mainCard');
+    
+    if(p.type === 'COLOR') {
+        card.className = "main-card color-mode";
+        document.getElementById('colorDisplay').style.display = 'block';
+        document.getElementById('sizeDisplay').style.display = 'none';
+        document.getElementById('predBall').className = "pred-ball ball-" + p.val.toLowerCase();
+        document.getElementById('predBall').innerText = p.val[0];
+        document.getElementById('predColorText').innerText = p.val;
+        document.getElementById('predColorText').style.color = p.val === 'RED' ? 'var(--red)' : 'var(--green)';
+    } else {
+        card.className = "main-card size-mode";
+        document.getElementById('colorDisplay').style.display = 'none';
+        document.getElementById('sizeDisplay').style.display = 'block';
+        document.getElementById('predSizeText').innerText = p.val;
+        document.getElementById('predSizeText').className = p.val === 'BIG' ? "size-big" : "size-small";
+    }
+    document.getElementById('levelInfo').innerText = "LEVEL " + currentLevel + (currentLevel > 1 ? " RECOVERY" : " SAFE");
+    document.getElementById('levelInfo').style.color = currentLevel > 1 ? "var(--gold)" : "var(--green)";
 }
 
-// ===== SIMPLE STRONG LOGIC =====
-function generatePrediction(){
-
-    if(historyData.length < 5){
-        document.getElementById("prediction-text").innerText="WAIT";
-        return;
-    }
-
-    let last = historyData.slice(0,3);
-
-    let sum = (last[0] + last[1] + last[2]) % 10;
-
-    let pred = sum>=5 ? "BIG" : "SMALL";
-
-    // 🔥 LOSS CONTROL
-    if(lossCount === 1){
-        pred = lastPred;
-    }
-
-    if(lossCount >= 2){
-        pred = lastPred==="BIG" ? "SMALL" : "BIG";
-        lossCount = 0;
-    }
-
-    lastPred = pred;
-
-    let el = document.getElementById("prediction-text");
-    el.innerText = pred;
-    el.style.color = pred==="BIG" ? "#00ff88" : "#ff3131";
-
-    // REMOVE LEVEL
-    let tag = document.getElementById("level-tag");
-    if(tag) tag.style.display = "none";
-}
-
-// ===== HISTORY UI =====
-function renderHistory(){
-
-    let box = document.getElementById("history-log");
-    let log = JSON.parse(localStorage.getItem("history_log")) || [];
-
-    box.innerHTML = "";
-
-    log.forEach(i=>{
-        let div = document.createElement("div");
-        div.className = "log-item";
-
-        let color = i.result==="WIN"?"lime":i.result==="LOSS"?"red":"yellow";
-
-        div.innerHTML = `
-        <span>#${i.period} → ${i.pred} → ${i.actual}</span>
-        <span style="color:${color}">${i.result}</span>
+function renderHistory() {
+    const body = document.getElementById('histBody');
+    body.innerHTML = "";
+    let wins = 0;
+    historyData.forEach(h => {
+        if(h.result === 'WIN') wins++;
+        body.innerHTML += `
+            <div class="hist-row">
+                <div style="color:var(--dim)">${h.period.slice(-4)}</div>
+                <div style="font-weight:bold">${h.openNum !== null ? h.openNum : '-'}</div>
+                <div style="color:${h.pred==='RED'||h.pred==='SMALL'?'var(--red)':'var(--green)'}">${h.pred}</div>
+                <div><span class="tag ${h.result==='WIN'?'tw':'tl'}">${h.result}</span></div>
+            </div>
         `;
-
-        box.appendChild(div);
     });
+    document.getElementById('sTotal').innerText = historyData.length;
+    document.getElementById('sWin').innerText = wins;
+    document.getElementById('sLoss').innerText = historyData.length - wins;
+    document.getElementById('sWr').innerText = historyData.length > 0 ? Math.round((wins/historyData.length)*100) + "%" : "0%";
 }
 
-// ===== STATS =====
-function updateStatsUI(){
-    document.getElementById("win-strike").innerText = stats.ws;
-    document.getElementById("loss-strike").innerText = stats.ls;
-    document.getElementById("total-win").innerText = stats.tw;
-    document.getElementById("total-loss").innerText = stats.tl;
+function logout() {
+    localStorage.clear();
+    location.reload();
 }
 
-// ===== START =====
-setInterval(syncServer,3000);
-
-window.onload = ()=>{
-    startTimer();
-    syncServer();
-};
-
+window.onload = checkAuth;
 </script>
 </body>
 </html>
