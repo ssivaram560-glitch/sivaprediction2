@@ -583,7 +583,13 @@ async function doFetch() {
 
   if (issueData) {
     const newPeriod = String(issueData.issueNumber || '');
-    if (S.curPeriod && newPeriod !== S.curPeriod && S.prevPred && list.length > 0) {
+   if (
+  S.curPeriod &&
+  newPeriod !== S.curPeriod &&
+  S.prevPred &&
+  S.prevPred !== "SKIP" &&
+  list.length > 0
+) {
       handleResult(parseInt(list[0].number) >= 5 ? 'BIG' : 'SMALL', S.prevPred, S.curPeriod);
     }
     S.curPeriod = newPeriod;
@@ -598,30 +604,209 @@ async function doFetch() {
   if (list.length > 0) {
     S.lastList = list;
     renderBalls(list.slice(0,5).map(i => parseInt(i.number)));
-    const pred = predictBotLogic(list.slice(0,15).map(i => parseInt(i.number) >= 5 ? 'BIG' : 'SMALL'), S.lossStreak);
-    S.curPred = S.prevPred = pred;
-    renderPred(pred, null, null);
-  }
+    const result =
+  predictBotLogic(
+    list.slice(0,15)
+    .map(i =>
+      parseInt(i.number) >= 5
+      ? 'BIG'
+      : 'SMALL'
+    ),
+    S.lossStreak
+  );
+
+if (result.pred !== "SKIP") {
+  S.curPred = result.pred;
+  S.prevPred = result.pred;
+}
+
+if (result.pred === "SKIP") {
+
+  S.curPred = null;
+
+  renderSkip();
+  return;
+}
+
+renderPred(result.pred);
+    
+}
+ 
+}
+function renderSkip() {
+
+  document.getElementById('mp').className =
+    'mp X';
+
+  document.getElementById('mpv').textContent =
+    '⏸ SKIP';
+
+  document.getElementById('mpr').textContent =
+    'Low confidence market';
+
+  document.getElementById('mps').style.display =
+    'none';
+
+  document.getElementById('cpct').textContent =
+    '--';
+
+  document.getElementById('bfill').style.width =
+    '0%';
+
+  document.getElementById('bd1').textContent =
+    '● RAG AI · SKIP';
+
+  document.getElementById('bd2').textContent =
+    '⚡ WAITING STRONG SIGNAL';
 }
 
 function predictBotLogic(history, lossStreak) {
+
   let score = { BIG: 0, SMALL: 0 };
-  let last7 = history.slice(0, 7);
-  let bigCount = last7.filter(x => x === 'BIG').length;
-  score.BIG += bigCount * 2; score.SMALL += (7-bigCount) * 2;
-  if (last7[0] === last7[1] && last7[1] === last7[2]) score[last7[0]] += 6;
-  if (last7.slice(0,5).every(v => v === last7[0])) { score[last7[0]] -= 6; score[last7[0] === 'BIG' ? 'SMALL' : 'BIG'] += 6; }
-  score[last7[0]] += 4;
-  let pred = score.BIG > score.SMALL ? 'BIG' : 'SMALL';
-  if (lossStreak >= 1) pred = history[0];
-  if (lossStreak >= 2) pred = pred === 'BIG' ? 'SMALL' : 'BIG';
-  return pred;
+  let last10 = history.slice(0, 10);
+
+  let big = last10.filter(x => x === "BIG").length;
+  let small = last10.length - big;
+
+  // ===== TREND FORCE =====
+  score.BIG += big * 2;
+  score.SMALL += small * 2;
+
+  // ===== RECENT WEIGHT =====
+  if (last10[0]) {
+  score[last10[0]] += 5;
+}
+  if (last10[1]) {
+  score[last10[1]] += 3;
 }
 
-function getConfidence(ls) { return (ls === 0 ? 90 + Math.random()*8 : 95 + Math.random()*4).toFixed(1); }
+  // ===== STREAK DETECTION =====
+  let streak = 1;
 
-function renderBalls(nums) {
-  document.getElementById('balls').innerHTML = nums.map(n => `<div class="ball ${n>=5?'big':'sml'}">${n}</div>`).join('');
+  for (let i = 0; i < last10.length - 1; i++) {
+
+    if (last10[i] === last10[i + 1]) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  // ===== STRONG TREND =====
+  if (streak >= 4 && last10[0]) {
+  score[last10[0]] += 8;
+}
+
+  // ===== OVER TREND REVERSAL =====
+ if (streak >= 6 && last10[0]) {
+
+  score[last10[0]] -= 10;
+
+  score[
+    last10[0] === "BIG"
+    ? "SMALL"
+    : "BIG"
+  ] += 10;
+}
+
+  // ===== ALTERNATE MARKET =====
+  let alt = true;
+
+  for (let i = 0; i < 5; i++) {
+
+    if (last10[i] === last10[i + 1]) {
+      alt = false;
+      break;
+    }
+  }
+
+  if (alt && last10[0]) {
+
+    score[
+      last10[0] === "BIG"
+      ? "SMALL"
+      : "BIG"
+    ] += 8;
+  }
+
+  // ===== LOSS RECOVERY =====
+  if (lossStreak === 1) {
+
+    score[
+      last10[0] === "BIG"
+      ? "SMALL"
+      : "BIG"
+    ] += 5;
+  }
+
+ if (lossStreak >= 2 && last10[0]) {
+  score[last10[0]] += 7;
+}
+if (
+  big === 5 &&
+  small === 5
+) {
+
+  return {
+    pred: "SKIP",
+    confidence: 0
+  };
+}
+  // ===== FINAL =====
+  let diff =
+    Math.abs(score.BIG - score.SMALL);
+
+  let pred =
+    score.BIG > score.SMALL
+    ? "BIG"
+    : "SMALL";
+
+  // ===== CONFIDENCE =====
+  let confidence =
+    Math.min(
+      99,
+      55 + (diff * 4)
+    );
+
+  // ===== SKIP FILTER =====
+  if (confidence < 92) {
+
+    return {
+      pred: "SKIP",
+      confidence
+    };
+  }
+
+  return {
+    pred,
+    confidence
+  };
+}function renderBalls(nums) {
+
+  const el = document.getElementById('balls');
+
+  el.innerHTML = nums.map(n => {
+
+    const cls =
+      n >= 5
+      ? 'big'
+      : 'sml';
+
+    return `
+      <div class="ball ${cls}">
+        ${n}
+      </div>
+    `;
+  }).join('');
+}
+
+function getConfidence(loss) {
+
+  if (loss === 0) return 96;
+
+  if (loss === 1) return 91;
+
+  return 82;
 }
 
 function renderPred(pred) {
