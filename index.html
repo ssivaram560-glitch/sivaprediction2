@@ -306,8 +306,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
     </div>
 
     <div class="rb">
-      <div class="rbt">🔁 2-LEVEL RECOVERY SYSTEM</div>
-      <div class="rbs">2 levels உள்ளே → 100% win guaranteed</div>
+      <div class="rbt">🔁 8-LEVEL RECOVERY SYSTEM</div>
+      <div class="rbs">Recovery system enabled</div>
       <div class="rrow">
         <div class="rl cur" id="rl1">
           <span class="rn">L1</span>
@@ -581,49 +581,63 @@ async function doFetch() {
   let basePeriod = issueData?.issueNumber?.toString() || null;
   let list = parseList(last5Data, basePeriod);
 
-  if (issueData) {
-    const newPeriod = String(issueData.issueNumber || '');
-  
-if (
-  S.curPeriod &&
-  newPeriod !== S.curPeriod &&
-  S.prevPred &&
-  list.length > 0
-) {
+ if (issueData) {
 
-  const prevResult = list.find(
-    x => String(x.issueNumber) === String(S.curPeriod)
-  );
+  const newPeriod = String(issueData.issueNumber || '');
 
-  if (prevResult) {
+  if (
+    S.curPeriod &&
+    newPeriod !== S.curPeriod &&
+    S.prevPred &&
+    list.length > 0
+  ) {
 
-    const actual =
-      parseInt(prevResult.number) >= 5
-      ? 'BIG'
-      : 'SMALL';
-
-    handleResult(
-      actual,
-      S.prevPred,
-      S.curPeriod
+    const prevResult = list.find(
+      x => String(x.issueNumber) === String(S.curPeriod)
     );
-  }
-}
-}
-    S.curPeriod = newPeriod;
-    document.getElementById('pid').textContent = newPeriod;
-    if (issueData.endTime && issueData.serviceTime) {
-      startTimer(Math.floor((new Date(issueData.endTime) - new Date(issueData.serviceTime)) / 1000));
-    } else {
-      startTimer(parseFloat(issueData.intervalM || 1) * 60);
+
+    if (prevResult) {
+
+      const actual =
+        parseInt(prevResult.number) >= 5
+        ? 'BIG'
+        : 'SMALL';
+
+      handleResult(
+        actual,
+        S.prevPred,
+        S.curPeriod
+      );
     }
   }
+
+  S.curPeriod = newPeriod;
+
+  document.getElementById('pid').textContent = newPeriod;
+
+  if (issueData.endTime && issueData.serviceTime) {
+
+    startTimer(
+      Math.floor(
+        (new Date(issueData.endTime) - new Date(issueData.serviceTime)) / 1000
+      )
+    );
+
+  } else {
+
+    startTimer(
+      parseFloat(issueData.intervalM || 1) * 60
+    );
+
+  }
+}
 
   if (list.length > 0) {
     S.lastList = list;
     renderBalls(list.slice(0,5).map(i => parseInt(i.number)));
     const result =
   predictBotLogic(
+    
     list.slice(0,15)
     .map(i =>
       parseInt(i.number) >= 5
@@ -633,12 +647,9 @@ if (
     S.lossStreak
   );
 
-
-  S.curPred = result.pred;
   S.prevPred = result.pred;
 
-renderPred(result.pred);
-
+renderPred(result.pred, result.confidence);
 }
  
 }
@@ -748,47 +759,73 @@ function predictBotLogic(history, lossStreak) {
     pred,
     confidence
   };
-}function renderBalls(nums) {
-
-  const el = document.getElementById('balls');
-
-  el.innerHTML = nums.map(n => {
-
-    const cls =
-      n >= 5
-      ? 'big'
-      : 'sml';
-
-    return `
-      <div class="ball ${cls}">
-        ${n}
-      </div>
-    `;
-  }).join('');
 }
+function renderBalls(nums){
 
-function getConfidence(loss) {
+  const el =
+    document.getElementById('balls');
 
-  if (loss === 0) return 96;
+  el.innerHTML =
+    nums.map(n => {
 
-  if (loss === 1) return 91;
+      const cls =
+        n >= 5
+        ? 'big'
+        : 'sml';
 
-  return 82;
+      return `
+        <div class="ball ${cls}">
+          ${n}
+        </div>
+      `;
+
+    }).join('');
 }
+function renderPred(pred, confidence) {
 
-function renderPred(pred) {
-  const conf = getConfidence(S.lossStreak);
-  const cls = pred === 'BIG' ? 'B' : 'S';
-  document.getElementById('mp').className = 'mp ' + cls;
-  document.getElementById('mpv').textContent = pred;
-  document.getElementById('mpr').textContent = 'Number: ' + (pred==='BIG'?'5-9':'0-4');
-  const sub = document.getElementById('mps');
+  const conf = confidence || 70;
+
+  const cls =
+    pred === 'BIG'
+    ? 'B'
+    : 'S';
+
+  document.getElementById('mp').className =
+    'mp ' + cls;
+
+  document.getElementById('mpv').textContent =
+    pred;
+
+  document.getElementById('mpr').textContent =
+    'Number: ' +
+    (
+      pred === 'BIG'
+      ? '5-9'
+      : '0-4'
+    );
+
+  const sub =
+    document.getElementById('mps');
+
   sub.style.display = 'inline-block';
-  sub.textContent = pred==='BIG' ? '🔵 BIG bet போடு' : '🟢 SMALL bet போடு';
-  document.getElementById('bd1').textContent = '● SIVA AI · ' + pred;
-  document.getElementById('bd2').textContent = '⚡ CONFIDENCE · ' + conf + '%';
-  document.getElementById('cpct').textContent = conf + '%';
-  document.getElementById('bfill').style.width = conf + '%';
+
+  sub.textContent =
+    pred === 'BIG'
+    ? '🔵 BIG bet போடு'
+    : '🟢 SMALL bet போடு';
+
+  document.getElementById('bd1').textContent =
+    '● SIVA AI · ' + pred;
+
+  document.getElementById('bd2').textContent =
+    '⚡ CONFIDENCE · ' + conf + '%';
+
+  document.getElementById('cpct').textContent =
+    conf + '%';
+
+  document.getElementById('bfill').style.width =
+    conf + '%';
+
   renderRec();
 }
 
@@ -815,15 +852,56 @@ function tick() {
 }
 
 function handleResult(actual, predicted, period) {
+
   const isWin = actual === predicted;
-  S.hist.unshift({ period, pred: predicted, actual, outcome: isWin?'win':'loss', lossStreak: S.lossStreak, time: new Date().toLocaleTimeString() });
-  if (isWin) { S.stats.w++; S.lossStreak = 0; showToast('✅ WIN! 🎉', 'tw'); }
-  else { S.stats.l++; S.lossStreak++; showToast(S.lossStreak===1?'❌ LOSS → L2!':'⚠️ L2 Fail','tl'); }
+
+  S.hist.unshift({
+    period,
+    pred: predicted,
+    actual,
+    outcome: isWin ? 'win' : 'loss',
+    lossStreak: S.lossStreak,
+    time: new Date().toLocaleTimeString()
+  });
+
+  if (S.hist.length > 500) {
+    S.hist = S.hist.slice(0, 500);
+  }
+
+  if (isWin) {
+    S.stats.w++;
+    S.lossStreak = 0;
+    showToast('✅ WIN! 🎉', 'tw');
+  } else {
+    S.stats.l++;
+    S.lossStreak++;
+    showToast(
+      S.lossStreak === 1
+        ? '❌ LOSS → L2!'
+        : '⚠️ L2 Fail',
+      'tl'
+    );
+  }
+
   S.stats.t++;
-  localStorage.setItem('sv_hist', JSON.stringify(S.hist));
-  localStorage.setItem('sv_st', JSON.stringify(S.stats));
-  localStorage.setItem('sv_ls', String(S.lossStreak));
-  updateHistUI(); renderRec();
+
+  localStorage.setItem(
+    'sv_hist',
+    JSON.stringify(S.hist)
+  );
+
+  localStorage.setItem(
+    'sv_st',
+    JSON.stringify(S.stats)
+  );
+
+  localStorage.setItem(
+    'sv_ls',
+    String(S.lossStreak)
+  );
+
+  updateHistUI();
+  renderRec();
 }
 
 function updateHistUI() {
@@ -835,7 +913,7 @@ function updateHistUI() {
   const items = S.filter==='all' ? S.hist : S.hist.filter(h=>h.outcome===S.filter);
   const el = document.getElementById('hlist');
   if (!items.length) { el.innerHTML='<div class="empty">No records.</div>'; return; }
-  el.innerHTML = items.slice(0,20).map(h=>`
+  el.innerHTML = items.slice(0,500).map(h=>`
     <div class="hi ${h.outcome==='win'?'w':'l'}">
       <div class="hbg ${h.outcome==='win'?'hbw':'hbl'}">${h.outcome==='win'?'W':'L'}</div>
       <div class="hif">
@@ -855,8 +933,22 @@ function showToast(msg, cls) {
 function setMode(g, btn) { S.typeId = g; document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); doFetch(); }
 function goPage(p, btn) { document.querySelectorAll('.pg').forEach(x=>x.classList.remove('show')); document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on')); document.getElementById('pg-'+p).classList.add('show'); btn.classList.add('on'); if(p==='hist') updateHistUI(); }
 function setF(f, btn) { S.filter = f; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); updateHistUI(); }
-function clearAll() { if(confirm('Clear?')) { S.hist=[]; S.stats={w:0,l:0,t:0}; localStorage.clear(); location.reload(); } }
+function clearAll() {
 
+  if(confirm('Clear History?')) {
+
+    S.hist = [];
+    S.stats = {w:0,l:0,t:0};
+
+    localStorage.removeItem('sv_hist');
+    localStorage.removeItem('sv_st');
+    localStorage.removeItem('sv_ls');
+
+    updateHistUI();
+
+    showToast('🗑 History Cleared','tg');
+  }
+}
 // BOOT
 checkAccess();
 updateHistUI();
