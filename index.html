@@ -261,8 +261,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
       placeholder="Paste your token here... (Network tab → GetGameIssue → Headers → Authorization → Bearer xxxxxx)"></textarea>
     <button class="tok-btn" onclick="saveToken()">✅ Connect & Predict</button>
     <div class="tok-hint">
-      📌 Token expire ஆனா: Rajaluck open பண்ணி Network tab-ல GetGameIssue click பண்ணி new token paste பண்ணு. <br>
-      Help: <a href="https://t.me/OnlineEarningapp_bot" style="color:var(--gd)">@OnlineEarningapp_bot</a>
+      📌new or Token expire ஆனால் Admin-ஐ தொடர்பு கொள்ளவும் 👇🏼 <br>
+      Contact: <a href="https://t.me/OnlineEarningapp_bot" style="color:var(--gd)" style="text-align: center;" >@OnlineEarningapp_bot</a>
     </div>
   </div>
 
@@ -518,7 +518,7 @@ async function callAPI(endpoint) {
     if (r.ok) { 
         const j=await r.json(); 
         if(j.code===0&&j.data) return j.data;
-        if(j.code===401) { showToast("❌ Token Expired! Check Bot", "tl"); resetToken(); }
+        if(j.code===401) { showToast("❌ Token Expired! Contact Bot", "tl"); resetToken(); }
     }
   } catch {}
   
@@ -769,7 +769,7 @@ if (
     );
 
   // ===== SKIP FILTER =====
-  if (confidence < 92) {
+  if (confidence < 85) {
 
     return {
       pred: "SKIP",
@@ -818,7 +818,7 @@ function renderPred(pred) {
   const sub = document.getElementById('mps');
   sub.style.display = 'inline-block';
   sub.textContent = pred==='BIG' ? '🔵 BIG bet போடு' : '🟢 SMALL bet போடு';
-  document.getElementById('bd1').textContent = '● RAG AI · ' + pred;
+  document.getElementById('bd1').textContent = '● SIVA AI · ' + pred;
   document.getElementById('bd2').textContent = '⚡ CONFIDENCE · ' + conf + '%';
   document.getElementById('cpct').textContent = conf + '%';
   document.getElementById('bfill').style.width = conf + '%';
