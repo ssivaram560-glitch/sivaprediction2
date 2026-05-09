@@ -37,24 +37,18 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .main-card{position:relative;background:var(--panel);border-radius:16px;padding:25px 15px;text-align:center;overflow:hidden;border:1px solid var(--border);transition: 0.5s;}
 .main-card.color-mode{border:2px solid var(--accent);box-shadow:0 0 30px rgba(0,229,255,0.15);}
 .main-card.size-mode{border:2px solid var(--gold);box-shadow:0 0 30px rgba(255,214,10,0.15);}
+.main-card.wait-mode{border: 2px solid var(--dim);}
 
 .pred-ball{width:80px;height:80px;border-radius:50%;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:24px;font-weight:900;border:4px solid rgba(255,255,255,0.1);}
 .ball-red{background:radial-gradient(circle at 30% 30%,#ff6680,var(--red));box-shadow:0 0 30px var(--red);}
 .ball-green{background:radial-gradient(circle at 30% 30%,#66ffbb,var(--green));box-shadow:0 0 30px var(--green);}
 .ball-violet{background:radial-gradient(circle at 30% 30%,#d68fff,var(--violet));box-shadow:0 0 30px var(--violet);}
-.ball-skip{background:#444;box-shadow:none;}
 
 .size-big{font-size:48px;font-weight:900;color:var(--gold);text-shadow:0 0 20px var(--gold);}
 .size-small{font-size:48px;font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent);}
 
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:15px 0;}
-.stat-card{background:var(--panel);border:1px solid var(--border);padding:10px 2px;border-radius:8px;text-align:center;}
-.stat-v{font-family:'Orbitron',monospace;font-size:18px;font-weight:bold;}
-.stat-l{font-size:8px;color:var(--dim);margin-top:2px;}
-
 /* NAV */
-.nav-bar{position:fixed;bottom:0;width:100%;max-width:440px;height:65px;background:#090918;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);z-index:1000;}
+.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;height:65px;background:#090918;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);z-index:1000;}
 .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--dim);font-size:10px;cursor:pointer;}
 .nav-item.active{color:var(--accent);}
 
@@ -67,7 +61,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </head>
 <body>
 
-<!-- Login Screen -->
 <div id="keyLockScreen">
     <div class="lock-box">
         <h2>SIVA ULTRA AI V57.5</h2>
@@ -78,7 +71,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     </div>
 </div>
 
-<!-- Main App -->
 <div class="wrap" id="mainAppContent" style="display:none;">
     <div class="hdr">
         <h1>SIVA ULTRA AI V57.5</h1>
@@ -94,7 +86,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <div class="pt-row">
             <div class="period-box">
                 <div style="font-size:9px; color:var(--dim);">CURRENT PERIOD</div>
-                <div class="period-num" id="periodNum">--------</div>
+                <div class="period-num" id="periodNum">CONNECTING...</div>
             </div>
             <div class="timer-box">
                 <div style="font-size:9px; color:var(--dim);">NEXT IN</div>
@@ -102,7 +94,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
             </div>
         </div>
 
-        <div class="main-card" id="mainCard">
+        <div class="main-card wait-mode" id="mainCard">
             <div id="waitView">ANALYZING MARKET TRENDS...</div>
             <div id="predView" style="display:none;">
                 <div id="predTypeBadge" class="tag" style="margin-bottom:10px; display:inline-block;">TARGET</div>
@@ -118,31 +110,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         </div>
     </div>
 
-    <div id="tabHistory" class="app-page" style="display:none; padding-bottom:20px;">
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-v" id="sTotal">0</div><div class="stat-l">TOTAL</div></div>
-            <div class="stat-card"><div class="stat-v" style="color:var(--green)" id="sWin">0</div><div class="stat-l">WINS</div></div>
-            <div class="stat-card"><div class="stat-v" style="color:var(--red)" id="sLoss">0</div><div class="stat-l">LOSS</div></div>
-            <div class="stat-card"><div class="stat-v" style="color:var(--gold)" id="sWr">0%</div><div class="stat-l">WIN %</div></div>
-        </div>
-        <div style="background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-            <div style="display:grid; grid-template-columns:110px 1fr 60px 60px; padding:10px; background:rgba(0,0,0,0.4); font-size:10px; font-weight:bold;">
-                <div>PERIOD</div><div>NUM</div><div>PRED</div><div>RESULT</div>
-            </div>
-            <div id="histBody"></div>
-        </div>
+    <div id="tabHistory" class="app-page" style="display:none;">
+        <div id="histBody" style="background:var(--panel); border-radius:12px; margin-top:10px;"></div>
     </div>
 
     <div id="tabProfile" class="app-page" style="display:none;">
-        <div style="background:var(--panel); padding:20px; border-radius:15px; text-align:center; border:1px solid var(--border);">
-            <div style="font-size:50px;">👤</div>
-            <h3 id="profId" style="color:var(--accent); margin:10px 0;">ID: LOADING...</h3>
-            <div style="text-align:left; font-size:12px; margin-top:15px; line-height:2;">
-                <p>LICENSE: <span style="color:var(--gold)">1-DAY EXCLUSIVE</span></p>
-                <p>STATUS: <span style="color:var(--green)">ACTIVE</span></p>
-                <p>DEVICE: <span id="profDev">---</span></p>
-            </div>
-            <button onclick="logout()" style="margin-top:20px; width:100%; padding:10px; background:rgba(255,45,85,0.1); border:1px solid var(--red); color:var(--red); border-radius:8px; cursor:pointer;">LOGOUT SYSTEM</button>
+        <div style="background:var(--panel); padding:20px; border-radius:15px; text-align:center;">
+            <h3 id="profId" style="color:var(--accent);">ID: SIVA_BOSS</h3>
+            <button onclick="logout()" style="margin-top:20px; width:100%; padding:10px; background:rgba(255,45,85,0.1); border:1px solid var(--red); color:var(--red); border-radius:8px;">LOGOUT</button>
         </div>
     </div>
 </div>
@@ -154,22 +129,19 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </div>
 
 <script>
-const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
+// ALLORIGINS PROXY METHOD (CORS பிரச்சனையைத் தீர்க்கும்)
+const API_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
 let historyData = JSON.parse(localStorage.getItem('SIVA_DATA_V57')) || [];
 let lastPeriod = null;
 let currentLevel = 1;
 
-// 🔑 KEYS
 const VALID_KEYS = ["SIVA-1DAY-AA99", "VIP-SIVA-786", "BOSS-99-SIVA"];
-
-function getTodayStr() { return new Date().toISOString().split('T')[0]; }
-function getDevId() { return navigator.userAgent.length + "-" + screen.width; }
 
 function validateLicense() {
     const key = document.getElementById('licenseKeyInput').value.toUpperCase();
     if(VALID_KEYS.includes(key)) {
         localStorage.setItem('SIVA_AUTH', key);
-        localStorage.setItem('SIVA_DATE', getTodayStr());
+        localStorage.setItem('SIVA_DATE', new Date().toISOString().split('T')[0]);
         location.reload();
     } else {
         document.getElementById('keyErrorMsg').style.display = 'block';
@@ -179,7 +151,7 @@ function validateLicense() {
 function checkAuth() {
     const auth = localStorage.getItem('SIVA_AUTH');
     const date = localStorage.getItem('SIVA_DATE');
-    if(auth && date === getTodayStr()) {
+    if(auth && date === new Date().toISOString().split('T')[0]) {
         document.getElementById('keyLockScreen').style.display = 'none';
         document.getElementById('mainAppContent').style.display = 'block';
         document.getElementById('bottomNavBar').style.display = 'grid';
@@ -192,11 +164,6 @@ function switchTab(id, el) {
     document.getElementById('tab' + id.charAt(0).toUpperCase() + id.slice(1)).style.display = 'block';
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     el.classList.add('active');
-    if(id === 'history') renderHistory();
-    if(id === 'profile') {
-        document.getElementById('profId').innerText = "ID: " + localStorage.getItem('SIVA_AUTH');
-        document.getElementById('profDev').innerText = getDevId();
-    }
 }
 
 function updateTime() {
@@ -210,69 +177,53 @@ async function startEngine() {
     setInterval(async () => {
         try {
             const res = await fetch(API_URL);
-            const json = await res.json();
+            const raw = await res.json();
+            const json = JSON.parse(raw.contents);
             const list = json.data.list;
             processData(list);
-        } catch (e) {}
+        } catch (e) {
+            console.log("Fetch/Proxy Error, Retrying...");
+        }
     }, 2000);
 }
 
 function processData(list) {
+    if (!list || list.length === 0) return;
     const latest = list[0];
     const period = latest.issueNumber;
     const num = parseInt(latest.number);
-    
     const seconds = 60 - new Date().getSeconds();
     document.getElementById('timerVal').innerText = seconds < 10 ? "0" + seconds : seconds;
 
     if(period !== lastPeriod) {
-        // Result Check
         if(historyData.length > 0 && historyData[0].result === 'WAIT') {
             const last = historyData[0];
             const isWin = last.type === 'COLOR' ? 
                 (num % 2 === 0 ? 'RED' : 'GREEN') === last.pred :
                 (num >= 5 ? 'BIG' : 'SMALL') === last.pred;
-            
             last.result = isWin ? 'WIN' : 'LOSS';
-            last.openNum = num;
             currentLevel = isWin ? 1 : (currentLevel >= 4 ? 1 : currentLevel + 1);
         }
 
         lastPeriod = period;
         const nextP = BigInt(period) + 1n;
-        document.getElementById('periodNum').innerText = nextP;
+        document.getElementById('periodNum').innerText = nextP.toString();
 
-        // Smart Logic
         const prediction = analyze(list);
-        historyData.unshift({
-            period: nextP.toString(),
-            pred: prediction.val,
-            type: prediction.type,
-            result: 'WAIT',
-            openNum: null
-        });
-        
+        historyData.unshift({ period: nextP.toString(), pred: prediction.val, type: prediction.type, result: 'WAIT' });
         displayPred(prediction);
         localStorage.setItem('SIVA_DATA_V57', JSON.stringify(historyData.slice(0, 50)));
     }
 }
 
 function analyze(list) {
-    // Advanced Anti-Dragon Switch Logic
     const lastNum = parseInt(list[0].number);
     const lastSiz = lastNum >= 5 ? 'BIG' : 'SMALL';
     const lastClr = lastNum % 2 === 0 ? 'RED' : 'GREEN';
-    
     let type = Math.random() > 0.5 ? 'SIZE' : 'COLOR';
-    let val = "";
-
-    if(currentLevel === 1) {
-        val = type === 'SIZE' ? (lastSiz === 'BIG' ? 'SMALL' : 'BIG') : (lastClr === 'RED' ? 'GREEN' : 'RED');
-    } else {
-        // Dragon Shield active - aggressive switching
-        val = type === 'SIZE' ? lastSiz : lastClr; 
-    }
-    
+    let val = (currentLevel === 1) ? 
+        (type === 'SIZE' ? (lastSiz === 'BIG' ? 'SMALL' : 'BIG') : (lastClr === 'RED' ? 'GREEN' : 'RED')) :
+        (type === 'SIZE' ? lastSiz : lastClr);
     return { type, val };
 }
 
@@ -280,7 +231,6 @@ function displayPred(p) {
     document.getElementById('waitView').style.display = 'none';
     document.getElementById('predView').style.display = 'block';
     const card = document.getElementById('mainCard');
-    
     if(p.type === 'COLOR') {
         card.className = "main-card color-mode";
         document.getElementById('colorDisplay').style.display = 'block';
@@ -296,36 +246,10 @@ function displayPred(p) {
         document.getElementById('predSizeText').innerText = p.val;
         document.getElementById('predSizeText').className = p.val === 'BIG' ? "size-big" : "size-small";
     }
-    document.getElementById('levelInfo').innerText = "LEVEL " + currentLevel + (currentLevel > 1 ? " RECOVERY" : " SAFE");
-    document.getElementById('levelInfo').style.color = currentLevel > 1 ? "var(--gold)" : "var(--green)";
+    document.getElementById('levelInfo').innerText = "LEVEL " + currentLevel;
 }
 
-function renderHistory() {
-    const body = document.getElementById('histBody');
-    body.innerHTML = "";
-    let wins = 0;
-    historyData.forEach(h => {
-        if(h.result === 'WIN') wins++;
-        body.innerHTML += `
-            <div class="hist-row">
-                <div style="color:var(--dim)">${h.period.slice(-4)}</div>
-                <div style="font-weight:bold">${h.openNum !== null ? h.openNum : '-'}</div>
-                <div style="color:${h.pred==='RED'||h.pred==='SMALL'?'var(--red)':'var(--green)'}">${h.pred}</div>
-                <div><span class="tag ${h.result==='WIN'?'tw':'tl'}">${h.result}</span></div>
-            </div>
-        `;
-    });
-    document.getElementById('sTotal').innerText = historyData.length;
-    document.getElementById('sWin').innerText = wins;
-    document.getElementById('sLoss').innerText = historyData.length - wins;
-    document.getElementById('sWr').innerText = historyData.length > 0 ? Math.round((wins/historyData.length)*100) + "%" : "0%";
-}
-
-function logout() {
-    localStorage.clear();
-    location.reload();
-}
-
+function logout() { localStorage.clear(); location.reload(); }
 window.onload = checkAuth;
 </script>
 </body>
