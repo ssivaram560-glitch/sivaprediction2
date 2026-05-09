@@ -590,13 +590,25 @@ if (
   S.prevPred &&
   list.length > 0
 ) {
-  handleResult(
-    parseInt(list[0].number) >= 5
-      ? 'BIG'
-      : 'SMALL',
-    S.prevPred,
-    S.curPeriod
+
+  const prevResult = list.find(
+    x => String(x.issueNumber) === String(S.curPeriod)
   );
+
+  if (prevResult) {
+
+    const actual =
+      parseInt(prevResult.number) >= 5
+      ? 'BIG'
+      : 'SMALL';
+
+    handleResult(
+      actual,
+      S.prevPred,
+      S.curPeriod
+    );
+  }
+}
 }
     S.curPeriod = newPeriod;
     document.getElementById('pid').textContent = newPeriod;
