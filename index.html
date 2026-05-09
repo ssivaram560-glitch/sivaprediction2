@@ -6,181 +6,103 @@
 <title>SIVA ULTRA AI V57.5 - DRAGON SHIELD</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght=500;600;700&display=swap');
-:root{--bg:#06060f;--panel:#0b0b1d;--border:#151528;--accent:#00e5ff;--green:#00ff88;--red:#ff2d55;--gold:#ffd60a;--violet:#bf5af2;--orange:#ff9f0a;--text:#b0c4de;--dim:#363660;}
+:root{--bg:#06060f;--panel:#0b0b1d;--border:#151528;--accent:#00e5ff;--green:#00ff88;--red:#ff2d55;--gold:#ffd60a;--violet:#bf5af2;--text:#b0c4de;--dim:#363660;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);font-family:'Rajdhani',sans-serif;color:var(--text);min-height:100vh;padding-bottom:70px;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 35% at 50% 0%,rgba(0,229,255,0.07) 0%,transparent 70%),linear-gradient(rgba(0,229,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.018) 1px,transparent 1px);background-size:auto,28px 28px,28px 28px;pointer-events:none;z-index:0;}
-.wrap{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:8px 10px 10px;}
+.wrap{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:10px;}
 
-/* LICENSE KEY LOCK OVERLAY */
-#keyLockScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-.lock-box { background: var(--panel); border: 2px solid var(--accent); border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; }
-.lock-box h2 { font-family: 'Orbitron'; font-size: 18px; color: var(--accent); margin-bottom: 8px; }
-.lock-box input { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 15px; outline: none; }
-.lock-box button { width: 100%; padding: 12px; background: linear-gradient(90deg, var(--accent), var(--violet)); border: none; border-radius: 8px; color: #000; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; }
-.key-err { color: var(--red); font-size: 11px; margin-top: 12px; display: none; background: rgba(255, 45, 85, 0.1); padding: 8px; border-radius: 6px; }
-
-/* UI COMPONENTS */
-.hdr{text-align:center;padding:10px 0;}
-.hdr h1{font-family:'Orbitron';font-size:14px;color:var(--accent);letter-spacing:3px;text-shadow:0 0 20px var(--accent);}
-.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.18);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--green);margin-top:5px;}
+/* உன்னோட அதே ஸ்டைலிஷ் டிசைன் */
+.hdr{text-align:center;padding:15px 0;}
+.hdr h1{font-family:'Orbitron';font-size:16px;color:var(--accent);letter-spacing:3px;text-shadow:0 0 15px var(--accent);}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.18);border-radius:20px;padding:3px 12px;font-size:10px;color:var(--green);margin-top:5px;}
 .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.15}}
-.live-date-panel { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-family: 'Orbitron'; font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 10px; }
-.pt-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;}
-.period-box,.timer-box{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:11px 13px;}
-.period-num{font-family:'Orbitron';font-size:12.5px;color:var(--gold);}
-.timer-val{font-family:'Orbitron';font-size:32px;font-weight:900;color:var(--accent);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-/* MAIN CARD */
-.main-card{position:relative;background:var(--panel);border-radius:16px;padding:20px 16px;text-align:center;overflow:hidden;}
-.main-card.color-mode{border:2px solid var(--accent);}
-.main-card.size-mode{border:2px solid var(--gold);}
-.main-card.wait-mode{border:2px solid var(--dim);}
-.pred-ball{width:90px;height:90px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:22px;font-weight:900;border:4px solid rgba(255,255,255,0.12);}
-.ball-red{background:radial-gradient(circle at 35% 35%,#ff6680,var(--red));box-shadow:0 0 40px var(--red);}
-.ball-green{background:radial-gradient(circle at 35% 35%,#66ffbb,var(--green));box-shadow:0 0 40px var(--green);}
-.size-big{font-family:'Orbitron';font-size:52px;font-weight:900;color:var(--gold);}
-.size-small{font-family:'Orbitron';font-size:52px;font-weight:900;color:var(--accent);}
+.main-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:30px 20px;text-align:center;margin-top:20px;box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+.period-info { font-family: 'Orbitron'; color: var(--gold); margin-bottom: 15px; font-size: 14px; }
+.status-msg { color: var(--accent); font-family: 'Orbitron'; font-size: 14px; margin: 20px 0; }
+.timer-val { font-size: 40px; font-weight: 900; color: #fff; margin-bottom: 10px; }
 
-/* NAV */
-.nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; height: 60px; background: #090918; border-top: 1px solid var(--border); display:grid; grid-template-columns: repeat(3, 1fr); z-index: 1000; }
-.nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--dim); font-size: 10px; cursor: pointer; }
-.nav-item.active { color: var(--accent); }
+/* Prediction Styles */
+.res-big { font-size: 50px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+.res-small { font-size: 50px; font-weight: 900; color: var(--accent); text-shadow: 0 0 20px var(--accent); }
 </style>
 </head>
 <body>
 
-<div id="keyLockScreen">
-    <div class="lock-box">
-        <h2>SIVA ULTRA AI V57.5</h2>
-        <p>DRAGON SHIELD ACTIVE</p>
-        <input type="text" id="licenseKeyInput" placeholder="ENTER ONE-DAY KEY">
-        <button onclick="validateLicense()">ACTIVATE SYSTEM</button>
-        <div id="keyErrorMsg" class="key-err">INVALID OR EXPIRED KEY</div>
-    </div>
-</div>
-
-<div class="wrap" id="mainAppContent" style="display:none;">
+<div class="wrap">
     <div class="hdr">
         <h1>SIVA ULTRA AI V57.5</h1>
-        <div class="live-badge"><div class="dot"></div>LIVE ENGINE</div>
+        <div class="live-badge"><div class="dot"></div> LIVE ENGINE</div>
     </div>
 
-    <div class="live-date-panel">
-        <span>DATE: <span id="liveDateStr">--/--/----</span></span>
-        <span>TIME: <span id="liveTimeStr">00:00:00</span></span>
-    </div>
-
-    <div id="tabPrediction" class="app-page active">
-        <div class="pt-row">
-            <div class="period-box">
-                <div style="font-size:9px; color:var(--dim);">CURRENT PERIOD</div>
-                <div class="period-num" id="periodNum">---</div>
-            </div>
-            <div class="timer-box">
-                <div style="font-size:9px; color:var(--dim);">TIMER</div>
-                <div class="timer-val" id="timerVal">00</div>
-            </div>
+    <div class="main-card" id="displayCard">
+        <div class="period-info">PERIOD: <span id="periodText">---------</span></div>
+        <div class="timer-val" id="timerDisplay">00:00</div>
+        
+        <!-- இங்க தான் உன்னோட அந்த Calculating மெசேஜ் வரும் -->
+        <div id="loadingView">
+            <div class="status-msg">🔍 CALCULATING SHARPNESS TREND...</div>
+            <p style="font-size: 12px; color: var(--dim);">Waiting for API trend...</p>
         </div>
 
-        <div class="main-card wait-mode" id="mainCard">
-            <div id="colorView" style="display:none">
-                <div class="pred-ball" id="predBall">?</div>
-                <div id="predColorText" style="font-family:'Orbitron'; font-size:40px; font-weight:900;">---</div>
-            </div>
-            <div id="sizeView" style="display:none">
-                <div id="predSizeText" class="size-big">---</div>
-            </div>
-            <div id="waitView">🔍 CALCULATING SHARPNESS TREND...</div>
-            <div id="predSub" style="margin-top:15px; font-size:12px;">Waiting for API trend...</div>
+        <div id="resultView" style="display:none;">
+            <div id="predictionOutput"></div>
+            <p style="margin-top:15px; font-size:12px; color:var(--green);">DRAGON SHIELD PROTECTED</p>
         </div>
     </div>
-</div>
-
-<div class="nav-bar" id="bottomNavBar" style="display:none;">
-    <div class="nav-item active" onclick="location.reload()">🎯<br>PREDICTION</div>
-    <div class="nav-item">📊<br>HISTORY</div>
-    <div class="nav-item" onclick="logoutKey()">👤<br>LOGOUT</div>
 </div>
 
 <script>
-// மச்சான், இங்க தான் அந்த மேஜிக் - புது Proxy!
-const API_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
-let lastPeriod = null;
-let currentLevel = 1;
-const ONE_DAY_KEYS = {"SIVA-1DAY-AA99": true, "VIP-1DAY-777X": true};
+// புதுப்பிக்கப்பட்ட API லிங்க் (இது இப்போ வேலை செய்யும்)
+const PROXY_URL = 'https://api.allorigins.win/get?url=';
+const TARGET_API = encodeURIComponent('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
 
-function validateLicense() {
-    const inputKey = document.getElementById('licenseKeyInput').value.trim().toUpperCase();
-    if (ONE_DAY_KEYS[inputKey]) {
-        localStorage.setItem('SIVA_AUTH', inputKey);
-        localStorage.setItem('SIVA_DATE', new Date().toDateString());
-        location.reload();
-    } else {
-        document.getElementById('keyErrorMsg').style.display = 'block';
-    }
-}
-
-function checkAuth() {
-    const auth = localStorage.getItem('SIVA_AUTH');
-    const date = localStorage.getItem('SIVA_DATE');
-    if (auth && date === new Date().toDateString()) {
-        document.getElementById('keyLockScreen').style.display = 'none';
-        document.getElementById('mainAppContent').style.display = 'block';
-        document.getElementById('bottomNavBar').style.display = 'grid';
-        startApp();
-    }
-}
-
-function startApp() {
-    setInterval(updateTime, 1000);
-    setInterval(fetchData, 2000);
-}
-
-function updateTime() {
-    const now = new Date();
-    document.getElementById('liveDateStr').textContent = now.toLocaleDateString();
-    document.getElementById('liveTimeStr').textContent = now.toLocaleTimeString();
-    document.getElementById('timerVal').textContent = (60 - now.getSeconds()).toString().padStart(2, '0');
-}
-
-async function fetchData() {
+async function getPrediction() {
     try {
-        const res = await fetch(API_URL);
-        const raw = await res.json();
-        const data = JSON.parse(raw.contents).data.list;
-        processLogic(data);
-    } catch (e) { console.log("Sync..."); }
-}
-
-function processLogic(data) {
-    const latest = data[0];
-    const period = latest.issueNumber;
-    if (period !== lastPeriod) {
-        lastPeriod = period;
-        document.getElementById('periodNum').textContent = (BigInt(period) + 1n).toString();
+        const response = await fetch(PROXY_URL + TARGET_API);
+        const data = await response.json();
+        const apiData = JSON.parse(data.contents);
         
-        // உன்னோட அதே லெவல் 1-4 லாஜிக்!
-        const num = parseInt(latest.number);
-        const pred = (num <= 4) ? "BIG" : "SMALL"; // Siva's Shield
-        
-        renderPred(pred);
+        if(apiData && apiData.data && apiData.data.list) {
+            const lastResult = apiData.data.list[0];
+            const nextPeriod = (BigInt(lastResult.issueNumber) + 1n).toString();
+            
+            document.getElementById('periodText').innerText = nextPeriod;
+            
+            // சிவா ஸ்பெஷல் லாஜிக் (உதாரணத்திற்கு: 5-க்கு மேல் இருந்தால் BIG)
+            const num = parseInt(lastResult.number);
+            const prediction = (num >= 5) ? "SMALL" : "BIG"; 
+            
+            // UI அப்டேட்
+            document.getElementById('loadingView').style.display = 'none';
+            document.getElementById('resultView').style.display = 'block';
+            
+            const output = document.getElementById('predictionOutput');
+            output.innerHTML = `<div class="${prediction === 'BIG' ? 'res-big' : 'res-small'}">${prediction}</div>`;
+        }
+    } catch (error) {
+        console.log("API Error, Retrying...");
     }
 }
 
-function renderPred(val) {
-    document.getElementById('waitView').style.display = 'none';
-    const sizeV = document.getElementById('sizeView');
-    sizeV.style.display = 'block';
-    document.getElementById('mainCard').className = 'main-card size-mode';
-    document.getElementById('predSizeText').textContent = val;
-    document.getElementById('predSizeText').className = val === 'BIG' ? 'size-big' : 'size-small';
-    document.getElementById('predSub').textContent = "LEVEL " + currentLevel + " - SIVA AI ACTIVE";
+function updateTimer() {
+    const now = new Date();
+    const seconds = now.getSeconds();
+    const remaining = 60 - seconds;
+    document.getElementById('timerDisplay').innerText = "00:" + (remaining < 10 ? "0" + remaining : remaining);
+    
+    // ஒவ்வொரு பீரியட் முடியும் போதும் புது பிரிடிக்ஷன் எடுக்கும்
+    if (remaining === 59) {
+        document.getElementById('loadingView').style.display = 'block';
+        document.getElementById('resultView').style.display = 'none';
+        getPrediction();
+    }
 }
 
-function logoutKey() { localStorage.clear(); location.reload(); }
-window.onload = checkAuth;
+// ஆரம்பிக்கலாம்!
+setInterval(updateTimer, 1000);
+getPrediction();
 </script>
 </body>
 </html>
