@@ -261,8 +261,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
       placeholder="Paste your token here... (Network tab → GetGameIssue → Headers → Authorization → Bearer xxxxxx)"></textarea>
     <button class="tok-btn" onclick="saveToken()">✅ Connect & Predict</button>
     <div class="tok-hint">
-      📌 Token expire ஆனா: Rajaluck open பண்ணி Network tab-ல GetGameIssue click பண்ணி new token paste பண்ணு. <br>
-      Help: <a href="https://t.me/OnlineEarningapp_bot" style="color:var(--gd)">@OnlineEarningapp_bot</a>
+      📌இந்த Token -ஐ பெறுவதற்கு Admin -ஐ தொடர்பு கொள்ளவும் 👇🏼. <br>
+      Contact: <a href="https://t.me/OnlineEarningapp_bot" style="color:var(--gd)">@OnlineEarningapp_bot</a>
     </div>
   </div>
 
@@ -279,7 +279,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
         </div>
       </div>
       <div class="brow">
-        <div class="bd bd1" id="bd1">● RAG AI · Loading</div>
+        <div class="bd bd1" id="bd1">● SIVHHH AI · Loading</div>
         <div class="bd bd2" id="bd2">⚡ SIGNAL · --</div>
       </div>
     </div>
@@ -372,7 +372,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
           <span style="color:var(--pu);font-weight:700;">@OnlineEarningapp_bot</span></div>
         <div style="display:flex;justify-content:space-between;">
           <span style="color:var(--mu);">Register</span>
-          <span style="color:var(--gr);font-weight:700;">jaiclub16.com</span></div>
+          <span style="color:var(--gr);font-weight:700;">Rajaluck.com</span></div>
         <div style="display:flex;justify-content:space-between;">
           <span style="color:var(--mu);">Token Status</span>
           <span style="color:var(--gd);font-weight:700;" id="tokStatus">Not set</span></div>
@@ -518,7 +518,7 @@ async function callAPI(endpoint) {
     if (r.ok) { 
         const j=await r.json(); 
         if(j.code===0&&j.data) return j.data;
-        if(j.code===401) { showToast("❌ Token Expired! Contact Bot", "tl"); resetToken(); }
+        if(j.code===401) { showToast("❌ Token Expired! Contact Admin", "tl"); resetToken(); }
     }
   } catch {}
   
@@ -583,15 +583,21 @@ async function doFetch() {
 
   if (issueData) {
     const newPeriod = String(issueData.issueNumber || '');
-   if (
+  
+if (
   S.curPeriod &&
   newPeriod !== S.curPeriod &&
   S.prevPred &&
-  S.prevPred !== "SKIP" &&
   list.length > 0
 ) {
-      handleResult(parseInt(list[0].number) >= 5 ? 'BIG' : 'SMALL', S.prevPred, S.curPeriod);
-    }
+  handleResult(
+    parseInt(list[0].number) >= 5
+      ? 'BIG'
+      : 'SMALL',
+    S.prevPred,
+    S.curPeriod
+  );
+}
     S.curPeriod = newPeriod;
     document.getElementById('pid').textContent = newPeriod;
     if (issueData.endTime && issueData.serviceTime) {
@@ -615,50 +621,16 @@ async function doFetch() {
     S.lossStreak
   );
 
-if (result.pred !== "SKIP") {
+
   S.curPred = result.pred;
   S.prevPred = result.pred;
-}
-
-if (result.pred === "SKIP") {
-
-  S.curPred = null;
-
-  renderSkip();
-  return;
-}
 
 renderPred(result.pred);
-    
+
 }
  
 }
-function renderSkip() {
 
-  document.getElementById('mp').className =
-    'mp X';
-
-  document.getElementById('mpv').textContent =
-    '⏸ SKIP';
-
-  document.getElementById('mpr').textContent =
-    'Low confidence market';
-
-  document.getElementById('mps').style.display =
-    'none';
-
-  document.getElementById('cpct').textContent =
-    '--';
-
-  document.getElementById('bfill').style.width =
-    '0%';
-
-  document.getElementById('bd1').textContent =
-    '● RAG AI · SKIP';
-
-  document.getElementById('bd2').textContent =
-    '⚡ WAITING STRONG SIGNAL';
-}
 
 function predictBotLogic(history, lossStreak) {
 
@@ -742,16 +714,8 @@ function predictBotLogic(history, lossStreak) {
  if (lossStreak >= 2 && last10[0]) {
   score[last10[0]] += 7;
 }
-if (
-  big === 5 &&
-  small === 5
-) {
 
-  return {
-    pred: "SKIP",
-    confidence: 0
-  };
-}
+
   // ===== FINAL =====
   let diff =
     Math.abs(score.BIG - score.SMALL);
@@ -767,15 +731,6 @@ if (
       99,
       55 + (diff * 4)
     );
-
-  // ===== SKIP FILTER =====
-  if (confidence < 88) {
-
-    return {
-      pred: "SKIP",
-      confidence
-    };
-  }
 
   return {
     pred,
