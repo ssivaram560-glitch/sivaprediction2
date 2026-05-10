@@ -360,7 +360,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
     <div style="background:var(--c2);border-radius:14px;padding:18px;border:1px solid var(--bo);text-align:center;margin-bottom:11px;">
       <div style="font-size:44px;margin-bottom:8px;">🤖</div>
       <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--pu);">SIVA ULTRA AI V54</div>
-      <div style="font-size:11px;color:var(--gr);margin-top:4px;">● 2-Level Recovery · Rajaluck Live</div>
+      <div style="font-size:11px;color:var(--gr);margin-top:4px;">● 8-Level Recovery · Rajaluck Live</div>
     </div>
     <div style="background:var(--c2);border-radius:14px;padding:14px;border:1px solid var(--bo);margin-bottom:11px;">
       <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;">
@@ -692,37 +692,40 @@ function predictBotLogic(history, lossStreak) {
   score[last10[0]] += 8;
 }
 
-  // ===== OVER TREND REVERSAL =====
  if (streak >= 6 && last10[0]) {
 
-  score[last10[0]] -= 10;
+  score[last10[0]] -= 4;
 
   score[
     last10[0] === "BIG"
     ? "SMALL"
     : "BIG"
-  ] += 10;
+  ] += 5;
 }
 
-  // ===== ALTERNATE MARKET =====
-  let alt = true;
+ // ===== ALTERNATE MARKET =====
+let alt = true;
 
-  for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 5; i++) {
 
-    if (last10[i] === last10[i + 1]) {
-      alt = false;
-      break;
-    }
+  if (last10[i] === last10[i + 1]) {
+    alt = false;
+    break;
   }
+}
 
-  if (alt && last10[0]) {
+if (alt && last10[0]) {
 
-    score[
-      last10[0] === "BIG"
-      ? "SMALL"
-      : "BIG"
-    ] += 8;
-  }
+  // opposite-ku small boost only
+  score[
+    last10[0] === "BIG"
+    ? "SMALL"
+    : "BIG"
+  ] += 3;
+
+  // current trend also maintain
+  score[last10[0]] += 2;
+}
 
   // ===== LOSS RECOVERY =====
   if (lossStreak === 1) {
@@ -735,7 +738,7 @@ function predictBotLogic(history, lossStreak) {
   }
 
  if (lossStreak >= 2 && last10[0]) {
-  score[last10[0]] += 7;
+  score[last10[0]] += 4;
 }
 
 
