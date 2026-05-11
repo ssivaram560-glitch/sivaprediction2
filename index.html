@@ -558,20 +558,19 @@ function verifyAccess() {
     }
   } catch(e) {}
   
-  // Free Trial Key backdoors
-  if (keyInput === "SIVA-FREE-2026") {
-    const expiryTime = Date.now() + (24 * 60 * 60 * 1000); // 24hr Trial
+  // INDHA PUTHU CODE-AH ANDHA IDATHULA REPLACE PANNIDU:
+  if (keyInput === "SIVA-LIFETIME-ADMIN") {
+    // 99 varusham expiry set panrom (Lifetime)
+    const expiryTime = Date.now() + (99 * 365 * 24 * 60 * 60 * 1000); 
     localStorage.setItem('sv_expiry_time', expiryTime);
-    localStorage.setItem('sv_plan_days', 1);
+    localStorage.setItem('sv_plan_days', "Lifetime"); // '1' days-ku badhila 'Lifetime' nu set aagum
     localStorage.setItem('sv_active_key', keyInput);
     document.getElementById('key-overlay').style.display = 'none';
-    showToast("✅ Free Trial Activated (24h)", "tg");
+    showToast("👑 Lifetime Admin Access Activated!", "tg");
     updateProfileUI();
     return;
   }
 
-  alert("❌ Invalid Activation Code! Please get key generated for ID: " + USER_ID);
-}
 
 function checkAccess() {
   const expiry = localStorage.getItem('sv_expiry_time');
