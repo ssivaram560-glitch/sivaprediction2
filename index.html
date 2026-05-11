@@ -504,414 +504,16 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
 
 <script>
 // ═══════════════════════════════════════
-// USER CONTROL & EXPIRY SYSTEM (NEW)
+// USER CONTROL & EXPIRY SYSTEM (FIXED)
 // ═══════════════════════════════════════
-const ADMIN_SECRET = "SIVA-CREATOR-V54"; // அட்மின் பேனல் திறப்பதற்கான உனது ரகசிய பாஸ்வேர்ட்!
+const ADMIN_SECRET = "SIVA-CREATOR-V54"; 
 
-// 1. Generate unique user ID for client if not exists
 if (!localStorage.getItem('sv_user_id')) {
   const randNum = Math.floor(1000 + Math.random() * 9000);
   localStorage.setItem('sv_user_id', `SIVA-${randNum}`);
 }
 const USER_ID = localStorage.getItem('sv_user_id');
 
-// Copy Functions
-function copyUserID() {
-  navigator.clipboard.writeText(USER_ID);
-  showToast("📋 User ID Copied!", "tw");
-}
-function copyExpiredUserID() {
-  navigator.clipboard.writeText(USER_ID);
-  showToast("📋 User ID Copied! Send to Admin", "tw");
-}
-
-function verifyAccess() {
-  const keyInput = document.getElementById('accessKey').value.trim();
-  
-  // Key verification check (Decodes encrypted information inside key)
-  try {
-    const parts = keyInput.split('-');
-    if (parts.length === 4 && parts[0] === 'SIVAKEY') {
-      const uIdInKey = parts[1] + '-' + parts[2];
-      const days = parseInt(parts[3]);
-      
-      if (uIdInKey === USER_ID) {
-        // Correct key generated for this specific user
-        let expiryTime = 0;
-        if (days === 999) {
-          expiryTime = Date.now() + (3650 * 24 * 60 * 60 * 1000); // 10 Years
-        } else {
-          expiryTime = Date.now() + (days * 24 * 60 * 60 * 1000); // Set Days limit
-        }
-        
-        localStorage.setItem('sv_expiry_time', expiryTime);
-        localStorage.setItem('sv_plan_days', days);
-        localStorage.setItem('sv_active_key', keyInput);
-        
-        document.getElementById('key-overlay').style.display = 'none';
-        document.getElementById('expired-overlay').style.display = 'none';
-        
-        showToast("✅ Plan Activated Successfully!", "tw");
-        updateProfileUI();
-        return;
-      }
-    }
-  } catch(e) {}
-  
-  // INDHA PUTHU CODE-AH ANDHA IDATHULA REPLACE PANNIDU:
-  if (keyInput === "SIVA-LIFETIME-ADMIN") {
-    // 99 varusham expiry set panrom (Lifetime)
-    const expiryTime = Date.now() + (99 * 365 * 24 * 60 * 60 * 1000); 
-    localStorage.setItem('sv_expiry_time', expiryTime);
-    localStorage.setItem('sv_plan_days', "Lifetime"); // '1' days-ku badhila 'Lifetime' nu set aagum
-    localStorage.setItem('sv_active_key', keyInput);
-    document.getElementById('key-overlay').style.display = 'none';
-    showToast("👑 Lifetime Admin Access Activated!", "tg");
-    updateProfileUI();
-    return;
-  }
-
-
-function checkAccess() {
-  const expiry = localStorage.getItem('sv_expiry_time');
-  
-  // Render UID details
-  document.getElementById('uid-display').textContent = USER_ID;
-  document.getElementById('expired-uid-display').textContent = USER_ID;
-  
-  if (expiry) {
-    if (Date.now() < parseInt(expiry)) {
-      document.getElementById('key-overlay').style.display = 'none';
-      document.getElementById('expired-overlay').style.display = 'none';
-      updateProfileUI();
-    } else {
-      // Expiry complete
-      document.getElementById('key-overlay').style.display = 'none';
-      document.getElementById('expired-overlay').style.display = 'flex';
-    }
-  } else {
-    // New User
-    document.getElementById('key-overlay').style.display = 'flex';
-    document.getElementById('expired-overlay').style.display = 'none';
-  }
-}
-
-function showLoginScreen() {
-  document.getElementById('expired-overlay').style.display = 'none';
-  document.getElementById('key-overlay').style.display = 'flex';
-}
-
-function goToBuyPlan() {
-  window.open('https://t.me/OnlineEarningapp_bot', '_blank');
-}
-
-function updateProfileUI() {
-  const expiry = localStorage.getItem('sv_expiry_time');
-  const days = localStorage.getItem('sv_plan_days');
-  
-  document.getElementById('prof-uid').textContent = USER_ID;
-  
-  if (expiry) {
-    const expDate = new Date(parseInt(expiry));
-    document.getElementById('prof-expiry').textContent = expDate.toLocaleDateString();
-    
-    if (parseInt(days) === 999) {
-      document.getElementById('prof-plan').textContent = "Lifetime Plan 💎";
-      document.getElementById('prof-plan').style.color = "var(--gd)";
-    } else {
-      document.getElementById('prof-plan').textContent = `${days} Days Premium`;
-      document.getElementById('prof-plan').style.color = "var(--gr)";
-    }
-  } else {
-    document.getElementById('prof-expiry').textContent = "No Plan Active";
-    document.getElementById('prof-plan').textContent = "Inactive";
-    document.getElementById('prof-plan').style.color = "var(--rd)";
-  }
-}
-
-// ═══════════════════════════════════════
-// SECRET ADMIN PANEL SYSTEM
-// ═══════════════════════════════════════
-function openAdminPortalPrompt() {
-  const pwd = prompt("🔐 Enter Secret Admin Key:");
-  if (pwd === ADMIN_SECRET) {
-    document.getElementById('admin-overlay').style.display = 'flex';
-  } else if (pwd !== null) {
-    alert("❌ Password Incorrect!");
-  }
-}
-
-function closeAdminPanel() {
-  document.getElementById('admin-overlay').style.display = 'none';
-}
-
-function adminGenerateKey() {
-  const targetId = document.getElementById('adminUserTarget').value.trim().toUpperCase();
-  const planDays = document.getElementById('adminPlanSelect').value;
-  
-  if (!targetId.startsWith("SIVA-") || targetId.length < 7) {
-    alert("❌ Invalid Target User ID!");
-    return;
-  }
-  
-  // Format: SIVAKEY-USER-ID-DAYS (Ex: SIVAKEY-SIVA-1234-1)
-  const generatedKey = `SIVAKEY-${targetId}-${planDays}`;
-  document.getElementById('generatedKeyDisplay').innerHTML = `Generated Key (Send to User):<br><strong style="color:#fff; user-select:all;">${generatedKey}</strong>`;
-}
-
-// ═══════════════════════════════════════
-// MD5 (Keeping it for hashing)
-// ═══════════════════════════════════════
-function md5(s){function a(a,b){return a+b&4294967295}function b(a,b,c,d,e,f){return a=a+((b&c|~b&d)+e+f)&4294967295,((a<<7|a>>>25)+b&4294967295)}function c(a,b,c,d,e,f){return a=a+((b&d|c&~d)+e+f)&4294967295,((a<<12|a>>>20)+b&4294967295)}function d(a,b,c,d,e,f){return a=a+((b^c^d)+e+f)&4294967295,((a<<17|a>>>15)+b&4294967295)}function e(a,b,c,d,e,f){return a=a+((c^(b|~d))+e+f)&4294967295,((a<<22|a>>>10)+b&4294967295)}
-var g=function(a){for(var b=[],c=0;c<a.length;c++){var d=a.charCodeAt(c);d<128?b.push(d):d<2048?(b.push(192|d>>6),b.push(128|63&d)):d<65536?(b.push(224|d>>12),b.push(128|d>>6&63),b.push(128|63&d)):(b.push(240|d>>18),b.push(128|d>>12&63),b.push(128|d>>6&63),b.push(128|63&d))}return b}(s),h=g.length,i=new Array(Math.ceil((h+9)/64)*16).fill(0);for(var j=0;j<h;j++)i[j>>2]|=g[j]<<24-j%4*8;i[h>>2]|=128<<24-h%4*8;i[i.length-2]=8*h;
-var k=1732584193,l=-271733879,m=-1732584194,n=271733878;
-for(var o=0;o<i.length;o+=16){var p=k,q=l,r=m,t=n;k=b(k,l,m,n,i[o],3614090360);n=b(n,k,l,m,i[o+1],3905402710);m=b(m,n,k,l,i[o+2],606105819);l=b(l,m,n,k,i[o+3],3250441966);k=b(k,l,m,n,i[o+4],4118548399);n=b(n,k,l,m,i[o+5],1200080426);m=b(m,n,k,l,i[o+6],2821735955);l=b(l,m,n,k,i[o+7],4249261313);k=b(k,l,m,n,i[o+8],1770035416);n=b(n,k,l,m,i[o+9],2336552879);m=b(m,n,k,l,i[o+10],4294925233);l=b(l,m,n,k,i[o+11],2304563134);k=b(k,l,m,n,i[o+12],1804603682);n=b(n,k,l,m,i[o+13],4254626195);m=m=b(m,n,k,l,i[o+14],2792965006);l=b(l,m,n,k,i[o+15],1236535329);k=c(k,l,m,n,i[o+1],4129170786);n=c(n,k,l,m,i[o+6],3225465664);m=c(m,n,k,l,i[o+11],643717713);l=c(l,m,n,k,i[o],3921069994);k=c(k,l,m,n,i[o+5],3593408605);n=c(n,k,l,m,i[o+10],38016083);m=c(m,n,k,l,i[o+15],3634488961);l=c(l,m,n,k,i[o+4],3889429448);k=c(k,l,m,n,i[o+9],568446438);n=c(n,k,l,m,i[o+14],3275163606);m=c(m,n,k,l,i[o+3],4107603335);l=c(l,m,n,k,i[o+8],1163531501);k=c(k,l,m,n,i[o+13],2850285829);n=c(n,k,l,m,i[o+2],4243563512);m=c(m,n,k,l,i[o+7],1735328473);l=c(l,m,n,k,i[o+12],2368359562);k=d(k,l,m,n,i[o+5],4294588738);n=d(n,k,l,m,i[o+8],2272392833);m=d(m,n,k,l,i[o+11],1839030562);l=d(l,m,n,k,i[o+14],4259657740);k=d(k,l,m,n,i[o+1],2763975236);n=d(n,k,l,m,i[o+4],1272893353);m=d(m,n,k,l,i[o+7],4139469664);l=d(l,m,n,k,i[o+10],3200236656);k=d(k,l,m,n,i[o+13],681279174);n=d(n,k,l,m,i[o],3936430074);m=d(m,n,k,l,i[o+3],3572445317);l=d(l,m,n,k,i[o+6],76029189);k=d(k,l,m,n,i[o+9],3654602809);n=d(n,k,l,m,i[o+12],3873151461);m=d(m,n,k,l,i[o+15],530742520);l=d(l,m,n,k,i[o+2],3299628645);k=e(k,l,m,n,i[o],4096336452);n=e(n,k,l,m,i[o+7],1126891415);m=e(m,n,k,l,i[o+14],2878612391);l=e(l,m,n,k,i[o+5],4237533241);k=e(k,l,m,n,i[o+12],1700485571);n=e(n,k,l,m,i[o+3],2399980690);m=e(m,n,k,l,i[o+10],4293915773);l=e(l,m,n,k,i[o+1],2240044497);k=e(k,l,m,n,i[o+8],1873313359);n=e(n,k,l,m,i[o+15],4264355552);m=e(m,n,k,l,i[o+6],2734768916);l=e(l,m,n,k,i[o+13],1309151649);k=e(k,l,m,n,i[o+4],4149444226);n=e(n,k,l,m,i[o+11],3174756917);m=e(m,n,k,l,i[o+2],718787259);l=e(l,m,n,k,i[o+9],3951481745);k=a(k,p);l=a(l,q);m=a(m,r);n=a(n,t)}
-return[k,l,m,n].map(a=>a>>>0).map(a=>a.toString(16).padStart(8,'0').match(/../g).reverse().join('')).join('')}
-
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-const S = {
-  token:      localStorage.getItem('sv_tok') || '',
-  typeId:     1,
-  lossStreak: parseInt(localStorage.getItem('sv_ls') || '0'),
-  winStreak:  parseInt(localStorage.getItem('sv_ws') || '0'),
-  hist:       JSON.parse(localStorage.getItem('sv_hist') || '[]'),
-  stats:      JSON.parse(localStorage.getItem('sv_st') || '{"w":0,"l":0,"t":0}'),
-  filter:     'all',
-  curPred:    null,
-  curPeriod:  null,
-  prevPred:   null,
-  timerSec:   0,
-  timerID:    null,
-  fetching:   false,
-  retries:    0,
-  lastList:   null
-};
-
-const BASE = 'https://lotteryapi.rajaluckapi.com/api/webapi';
-
-// ═══════════════════════════════════════
-// TOKEN
-// ═══════════════════════════════════════
-function saveToken() {
-  let raw = document.getElementById('tokIn').value.trim();
-  raw = raw.replace(/^Bearer\s+/i, '').trim();
-  if (!raw || raw.length < 20) { 
-    showToast('⚠️ Invalid token!','tl'); 
-    return; 
-  }
-  S.token = raw;
-  localStorage.setItem('sv_tok', raw);
-  document.getElementById('tokBox').style.display = 'none';
-  document.getElementById('mainCards').style.display = 'block';
-  document.getElementById('tokStatus').textContent = '✅ Active';
-  showToast('✅ Token saved!','tw');
-  doFetch();
-}
-
-function resetToken() {
-  S.token = '';
-  localStorage.removeItem('sv_tok');
-  document.getElementById('tokBox').style.display = 'block';
-  document.getElementById('mainCards').style.display = 'none';
-  document.getElementById('tokStatus').textContent = 'Not set';
-  goPage('home', document.querySelector('.nb'));
-}
-
-// ═══════════════════════════════════════
-// PAYLOAD & API CALLS
-// ═══════════════════════════════════════
-function mkPayload(extra={}) {
-  const ts   = Math.floor(Date.now()/1000);
-  const rand = Array.from({length:32},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
-  const sig  = md5(rand).toUpperCase();
-  return { typeId: S.typeId, language: 5, random: rand, signature: sig, timestamp: ts, pageSize: 10, pageNo: 1, ...extra };
-}
-
-function getHeaders() {
-  return {
-    'Content-Type': 'application/json;charset=UTF-8',
-    'Accept': 'application/json, text/plain, */*',
-    'Authorization': 'Bearer ' + S.token,
-    'Origin': 'https://20580.rajaluckroyal.com',
-    'Referer': 'https://20580.rajaluckroyal.com/'
-  };
-}
-
-async function callAPI(endpoint) {
-  const body = JSON.stringify(mkPayload());
-  const url  = `${BASE}/${endpoint}`;
-  try {
-    const r = await fetch(url, { method:'POST', headers: getHeaders(), body, signal: AbortSignal.timeout(7000) });
-    if (r.ok) { 
-        const j=await r.json(); 
-        if(j.code===0&&j.data) return j.data;
-        if(j.code===401) { showToast("❌ Token Expired! Contact Admin", "tl"); resetToken(); }
-    }
-  } catch {}
-  
-  try {
-    const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, {
-      method:'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+S.token,'x-requested-with':'XMLHttpRequest'},
-      body, signal: AbortSignal.timeout(7000)
-    });
-    if (r.ok) { const j=await r.json(); if(j.code===0&&j.data) return j.data; }
-  } catch {}
-  return null;
-}
-
-function parseList(data, basePeriod) {
-  if (!data) return [];
-  if (data.list && data.list.length > 0) return data.list;
-  if (data.number) {
-    const nums = data.number.split(',');
-    let base   = basePeriod || genFallbackPeriod();
-    return nums.map((num, idx) => ({
-      issueNumber: (BigInt(base) - BigInt(idx + 1)).toString(),
-      number: num.trim()
-    }));
-  }
-  return [];
-}
-
-function genFallbackPeriod() {
-  const now = new Date();
-  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
-  const start = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0);
-  const seq = String(Math.floor((now-start)/60000)).padStart(4,'0');
-  return `${y}${m}${d}10${seq}`;
-}
-
-async function doFetch() {
-  if (!S.token || S.fetching) return;
-  checkAccess(); // Expiry-ஐ வெரிஃபை செய்த பின் தான் API-ஐ ரன் செய்யும்
-  S.fetching = true;
-
-  const [issueData, last5Data] = await Promise.all([
-    callAPI('GetGameIssue'),
-    callAPI('GetLastFiveIssueNumberResult')
-  ]);
-
-  S.fetching = false;
-
-  if (!issueData && !last5Data) {
-    S.retries++;
-    setConn('off');
-    setTimeout(doFetch, Math.min(8000, 2000 * S.retries));
-    return;
-  }
-
-  S.retries = 0;
-  setConn('live');
-
-  let basePeriod = issueData?.issueNumber?.toString() || null;
-  let list = parseList(last5Data, basePeriod);
-
-  if (issueData) {
-    const newPeriod = String(issueData.issueNumber || '');
-    if (S.curPeriod && newPeriod !== S.curPeriod && S.prevPred && list.length > 0) {
-      const prevResult = list.find(x => String(x.issueNumber) === String(S.curPeriod));
-      if (prevResult) {
-        const actual = parseInt(prevResult.number) >= 5 ? 'BIG' : 'SMALL';
-        handleResult(actual, S.prevPred, S.curPeriod);
-      }
-    }
-    S.curPeriod = newPeriod;
-    document.getElementById('pid').textContent = newPeriod;
-
-    if (issueData.endTime && issueData.serviceTime) {
-      startTimer(Math.floor((new Date(issueData.endTime) - new Date(issueData.serviceTime)) / 1000));
-    } else {
-      startTimer(parseFloat(issueData.intervalM || 1) * 60);
-    }
-  }
-
-  if (list.length > 0) {
-    S.lastList = list;
-    renderBalls(list.slice(0,5).map(i => parseInt(i.number)));
-    const result = predictBotLogic(list.slice(0,15).map(i => parseInt(i.number) >= 5 ? 'BIG' : 'SMALL'), S.lossStreak);
-    S.prevPred = result.pred;
-    renderPred(result.pred, result.confidence);
-  }
-}
-
-function predictBotLogic(history, lossStreak) {
-  let score = { BIG: 0, SMALL: 0 };
-  let last10 = history.slice(0, 10);
-  let big = last10.filter(x => x === "BIG").length;
-  let small = last10.length - big;
-
-  score.BIG += big * 2;
-  score.SMALL += small * 2;
-
-  if (last10[0]) score[last10[0]] += 5;
-  if (last10[1]) score[last10[1]] += 3;
-
-  let streak = 1;
-  for (let i = 0; i < last10.length - 1; i++) {
-    if (last10[i] === last10[i + 1]) streak++;
-    else break;
-  }
-
-  if (streak >= 4 && last10[0]) score[last10[0]] += 8;
-  if (streak >= 6 && last10[0]) {
-    score[last10[0]] -= 10;
-    score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 10;
-  }
-
-  let alt = true;
-  for (let i = 0; i < 5; i++) {
-    if (last10[i] === last10[i + 1]) { alt = false; break; }
-  }
-  if (alt && last10[0]) {
-    score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 8;
-  }
-
-  if (lossStreak === 1) score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 5;
-  if (lossStreak >= 2 && last10[0]) score[last10[0]] += 7;
-
-  let diff = Math.abs(score.BIG - score.SMALL);
-  let pred = score.BIG > score.SMALL ? "BIG" : "SMALL";
-  let confidence = Math.min(99, 55 + (diff * 4));
-
-  return { pred, confidence };
-}
-
-function renderBalls(nums){
-  const el = document.getElementById('balls');
-  el.innerHTML = nums.map(n => {
-    const cls = n >= 5 ? 'big' : 'sml';
-    return `<div class="ball ${cls}">${n}</div>`;
-  }).join('');
-}
-
-function renderPred(pred, confidence) {
-  const conf = confidence || 70;
-  const cls = pred === 'BIG' ? 'B' : 'S';
-  document.getElementById('mp').className = 'mp ' + cls;
-  document.getElementById('mpv').textContent = pred;
-  document.getElementById('mpr').textContent = 'Number: ' + (pred === 'BIG' ? '5-9' : '0-4');
-  
-  const sub = document.getElementById('mps');
-  sub.style.display = 'inline-block';
-  sub.textContent = pred === 'BIG' ? '🔵 BIG bet போடு' : '🟢 SMALL bet போடு';
-
-<script>
-// ═══════════════════════════════════════
-// USER CONTROL & EXPIRY SYSTEM (NEW)
-// ═══════════════════════════════════════
-const ADMIN_SECRET = "SIVA-CREATOR-V54"; // அட்மின் பேனல் திறப்பதற்கான உனது ரகசிய பாஸ்வேர்ட்!
-
-// 1. Generate unique user ID for client if not exists
-if (!localStorage.getItem('sv_user_id')) {
-  const randNum = Math.floor(1000 + Math.random() * 9000);
-  localStorage.setItem('sv_user_id', `SIVA-${randNum}`);
-}
-const USER_ID = localStorage.getItem('sv_user_id');
-
-// Copy Functions
 function copyUserID() {
   navigator.clipboard.writeText(USER_ID);
   showToast("📋 User ID Copied!", "tw");
@@ -926,11 +528,10 @@ function verifyAccess() {
   
   // 🌟 BYPASS 1: ADMIN / LIFETIME KEY
   if (keyInput === "SIVA-LIFETIME-ADMIN") {
-    // 99 varusham validity set panrom (Virtually Lifetime)
     const expiryTime = Date.now() + (99 * 365 * 24 * 60 * 60 * 1000); 
     
     localStorage.setItem('sv_expiry_time', expiryTime);
-    localStorage.setItem('sv_plan_days', '999'); // Lifetime plan key representation
+    localStorage.setItem('sv_plan_days', 'Lifetime');
     localStorage.setItem('sv_active_key', keyInput);
     
     document.getElementById('key-overlay').style.display = 'none';
@@ -941,9 +542,9 @@ function verifyAccess() {
     return;
   }
 
-  // 🌟 BYPASS 2: FREE TRIAL KEY (If you still want it)
-  if (keyInput === "SIVA-FREE-2026") {
-    const expiryTime = Date.now() + (24 * 60 * 60 * 1000); // 24 Hours
+  // 🌟 BYPASS 2: FREE TRIAL KEY
+  if (keyInput === "SIVA-FREE-2007") {
+    const expiryTime = Date.now() + (24 * 60 * 60 * 1000); 
     localStorage.setItem('sv_expiry_time', expiryTime);
     localStorage.setItem('sv_plan_days', "1");
     localStorage.setItem('sv_active_key', keyInput);
@@ -956,7 +557,7 @@ function verifyAccess() {
     return;
   }
 
-  // 🌟 STANDARD CODE VALIDATION (Default Algorithm)
+  // 🌟 STANDARD CODE VALIDATION
   try {
     const parts = keyInput.split('-');
     if (parts.length === 4 && parts[0] === 'SIVAKEY') {
@@ -966,9 +567,9 @@ function verifyAccess() {
       if (uIdInKey === USER_ID) {
         let expiryTime = 0;
         if (days === 999) {
-          expiryTime = Date.now() + (3650 * 24 * 60 * 60 * 1000); // 10 Years
+          expiryTime = Date.now() + (3650 * 24 * 60 * 60 * 1000); 
         } else {
-          expiryTime = Date.now() + (days * 24 * 60 * 60 * 1000); // Set Days Limit
+          expiryTime = Date.now() + (days * 24 * 60 * 60 * 1000); 
         }
         
         localStorage.setItem('sv_expiry_time', expiryTime);
@@ -991,7 +592,6 @@ function verifyAccess() {
 function checkAccess() {
   const expiry = localStorage.getItem('sv_expiry_time');
   
-  // Render UID details
   document.getElementById('uid-display').textContent = USER_ID;
   document.getElementById('expired-uid-display').textContent = USER_ID;
   
@@ -1001,12 +601,10 @@ function checkAccess() {
       document.getElementById('expired-overlay').style.display = 'none';
       updateProfileUI();
     } else {
-      // Expiry complete
       document.getElementById('key-overlay').style.display = 'none';
       document.getElementById('expired-overlay').style.display = 'flex';
     }
   } else {
-    // New User
     document.getElementById('key-overlay').style.display = 'flex';
     document.getElementById('expired-overlay').style.display = 'none';
   }
@@ -1045,9 +643,6 @@ function updateProfileUI() {
   }
 }
 
-// ═══════════════════════════════════════
-// SECRET ADMIN PANEL SYSTEM
-// ═══════════════════════════════════════
 function openAdminPortalPrompt() {
   const pwd = prompt("🔐 Enter Secret Admin Key:");
   if (pwd === ADMIN_SECRET) {
@@ -1070,14 +665,11 @@ function adminGenerateKey() {
     return;
   }
   
-  // Format: SIVAKEY-USER-ID-DAYS (Ex: SIVAKEY-SIVA-1234-1)
   const generatedKey = `SIVAKEY-${targetId}-${planDays}`;
   document.getElementById('generatedKeyDisplay').innerHTML = `Generated Key (Send to User):<br><strong style="color:#fff; user-select:all;">${generatedKey}</strong>`;
 }
 
-// ═══════════════════════════════════════
-// MD5 (Keeping it for hashing)
-// ═══════════════════════════════════════
+// MD5
 function md5(s){function a(a,b){return a+b&4294967295}function b(a,b,c,d,e,f){return a=a+((b&c|~b&d)+e+f)&4294967295,((a<<7|a>>>25)+b&4294967295)}function c(a,b,c,d,e,f){return a=a+((b&d|c&~d)+e+f)&4294967295,((a<<12|a>>>20)+b&4294967295)}function d(a,b,c,d,e,f){return a=a+((b^c^d)+e+f)&4294967295,((a<<17|a>>>15)+b&4294967295)}function e(a,b,c,d,e,f){return a=a+((c^(b|~d))+e+f)&4294967295,((a<<22|a>>>10)+b&4294967295)}
 var g=function(a){for(var b=[],c=0;c<a.length;c++){var d=a.charCodeAt(c);d<128?b.push(d):d<2048?(b.push(192|d>>6),b.push(128|63&d)):d<65536?(b.push(224|d>>12),b.push(128|d>>6&63),b.push(128|63&d)):(b.push(240|d>>18),b.push(128|d>>12&63),b.push(128|d>>6&63),b.push(128|63&d))}return b}(s),h=g.length,i=new Array(Math.ceil((h+9)/64)*16).fill(0);for(var j=0;j<h;j++)i[j>>2]|=g[j]<<24-j%4*8;i[h>>2]|=128<<24-h%4*8;i[i.length-2]=8*h;
 var k=1732584193,l=-271733879,m=-1732584194,n=271733878;
@@ -1107,9 +699,6 @@ const S = {
 
 const BASE = 'https://lotteryapi.rajaluckapi.com/api/webapi';
 
-// ═══════════════════════════════════════
-// TOKEN
-// ═══════════════════════════════════════
 function saveToken() {
   let raw = document.getElementById('tokIn').value.trim();
   raw = raw.replace(/^Bearer\s+/i, '').trim();
@@ -1135,9 +724,6 @@ function resetToken() {
   goPage('home', document.querySelector('.nb'));
 }
 
-// ═══════════════════════════════════════
-// PAYLOAD & API CALLS
-// ═══════════════════════════════════════
 function mkPayload(extra={}) {
   const ts   = Math.floor(Date.now()/1000);
   const rand = Array.from({length:32},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
@@ -1202,7 +788,7 @@ function genFallbackPeriod() {
 
 async function doFetch() {
   if (!S.token || S.fetching) return;
-  checkAccess(); // Expiry-ஐ வெரிஃபை செய்த பின் தான் API-ஐ ரன் செய்யும்
+  checkAccess(); 
   S.fetching = true;
 
   const [issueData, last5Data] = await Promise.all([
@@ -1429,4 +1015,4 @@ setInterval(()=>{
 }, 15000);
 </script>
 </body>
-</html>
+                                                       </html>
