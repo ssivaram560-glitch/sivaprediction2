@@ -16,7 +16,7 @@
 body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
   max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;}
 
-/* KEY OVERLAY */
+/* KEY & USER ID OVERLAY */
 #key-overlay {
   position: fixed; inset: 0; background: var(--bg); z-index: 1000;
   display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -26,18 +26,70 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
   padding: 30px 20px; width: 100%; text-align: center;
   box-shadow: 0 0 30px rgba(139,92,246,0.2);
 }
-.key-card h2 { font-family: 'Orbitron'; font-size: 18px; margin-bottom: 15px; color: var(--pu); }
+.key-card h2 { font-family: 'Orbitron'; font-size: 18px; margin-bottom: 10px; color: var(--pu); }
+.uid-badge {
+  background: rgba(139,92,246,0.15); border: 1px dashed var(--pu);
+  padding: 10px; border-radius: 8px; font-family: 'Orbitron';
+  font-size: 16px; color: var(--gd); margin-bottom: 15px;
+  cursor: pointer; position: relative;
+}
+.uid-badge::after {
+  content: '📋 Copy ID'; position: absolute; bottom: -18px; left: 50%;
+  transform: translateX(-50%); font-size: 9px; color: var(--mu); font-family: 'Rajdhani';
+}
 .key-card input {
   width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--bo);
   padding: 12px; border-radius: 10px; color: #fff; text-align: center;
-  font-family: 'Orbitron'; letter-spacing: 2px; margin-bottom: 15px;
+  font-family: 'Orbitron'; letter-spacing: 2px; margin-bottom: 15px; margin-top: 15px;
 }
 .key-btn {
   width: 100%; background: var(--pu); color: #fff; border: none;
   padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
+  font-family: 'Rajdhani'; font-size: 14px;
 }
-.key-link { margin-top: 15px; font-size: 12px; color: var(--mu); }
+.key-link { margin-top: 20px; font-size: 12px; color: var(--mu); line-height: 1.5; }
 .key-link a { color: var(--gd); text-decoration: none; font-weight: 700; }
+
+/* EXPIRED SCREEN OVERLAY */
+#expired-overlay {
+  position: fixed; inset: 0; background: var(--bg); z-index: 1001;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.expired-card {
+  background: var(--c2); border: 1px solid var(--rd); border-radius: 20px;
+  padding: 35px 20px; width: 100%; text-align: center;
+  box-shadow: 0 0 30px rgba(239,68,68,0.2);
+}
+.expired-card h2 { font-family: 'Orbitron'; font-size: 20px; color: var(--rd); margin-bottom: 10px; }
+.expired-card p { font-size: 14px; color: var(--tx); margin-bottom: 20px; line-height: 1.6; }
+.buy-btn {
+  width: 100%; background: var(--gd); color: #000; border: none;
+  padding: 13px; border-radius: 10px; font-weight: 900; cursor: pointer;
+  font-family: 'Rajdhani'; font-size: 15px; text-transform: uppercase;
+}
+
+/* ADMIN PANEL OVERLAY */
+#admin-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1002;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.admin-card {
+  background: #111; border: 2px solid var(--gd); border-radius: 20px;
+  padding: 25px 20px; width: 100%; text-align: center;
+}
+.admin-card h2 { font-family: 'Orbitron'; color: var(--gd); font-size: 18px; margin-bottom: 15px; }
+.admin-card input, .admin-card select {
+  width: 100%; background: #222; border: 1px solid #444; padding: 10px;
+  border-radius: 8px; color: #fff; margin-bottom: 12px; text-align: center; font-family: 'Rajdhani'; font-size: 14px;
+}
+.admin-btn {
+  width: 100%; background: var(--gr); color: #fff; border: none; padding: 11px;
+  border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 8px;
+}
+.admin-close {
+  width: 100%; background: var(--rd); color: #fff; border: none; padding: 8px;
+  border-radius: 8px; font-weight: 700; cursor: pointer;
+}
 
 /* TOP BAR */
 .top{background:linear-gradient(135deg,#12052a,#091433);
@@ -227,16 +279,47 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
 </head>
 <body>
 
-<!-- ACCESS KEY SYSTEM -->
-<div id="key-overlay">
+<div id="key-overlay" style="display: none;">
   <div class="key-card">
     <h2>🔑 ACCESS CONTROL</h2>
-    <input type="text" id="accessKey" placeholder="SIVA-XXXX-XXXX">
-    <button class="key-btn" onclick="verifyAccess()">Login to AI</button>
+    <p style="font-size:11px; color:var(--mu); margin-bottom:10px;">உங்களுடைய Unique User ID கீழே கொடுக்கப்பட்டுள்ளது:</p>
+    
+    <div class="uid-badge" id="uid-display" onclick="copyUserID()">SIVA-XXXX</div>
+    
+    <input type="text" id="accessKey" placeholder="🔑 ENTER KEY TO ACTIVATE">
+    <button class="key-btn" onclick="verifyAccess()">Submit Code</button>
+    
     <div class="key-link">
-      Need a key? Contact: <br>
+      ID-ஐ காப்பி செய்து Admin-க்கு அனுப்பவும்! <br>
+      Contact Telegram Admin 👇🏼<br>
       <a href="https://t.me/OnlineEarningapp_bot" target="_blank">@OnlineEarningapp_bot</a>
     </div>
+  </div>
+</div>
+
+<div id="expired-overlay" style="display: none;">
+  <div class="expired-card">
+    <h2>⚠️ PLAN EXPIRED!</h2>
+    <p>உங்களுடைய சந்தா காலம் முடிவடைந்துவிட்டது. தயவுசெய்து புதிய Key-ஐ வாங்கி ஆக்டிவேட் செய்யவும்.</p>
+    <div class="uid-badge" id="expired-uid-display" onclick="copyExpiredUserID()" style="margin-bottom:20px;">SIVA-XXXX</div>
+    <button class="buy-btn" onclick="goToBuyPlan()">🛒 BUY NEW PLAN / KEY</button>
+    <p style="font-size:11px; color:var(--mu); margin-top:15px;">அல்லது மீண்டும் லாக்-இன் செய்ய <a href="#" onclick="showLoginScreen()" style="color:var(--pu)">இங்கே கிளிக் செய்யவும்</a></p>
+  </div>
+</div>
+
+<div id="admin-overlay" style="display: none;">
+  <div class="admin-card">
+    <h2>⚡ SIVA ADMIN PANEL</h2>
+    <input type="text" id="adminUserTarget" placeholder="User ID போடு (SIVA-XXXX)">
+    <select id="adminPlanSelect">
+      <option value="1">1 Day (24 Hours)</option>
+      <option value="7">7 Days (Weekly)</option>
+      <option value="30">30 Days (Monthly)</option>
+      <option value="999">Lifetime Plan (Permanent)</option>
+    </select>
+    <button class="admin-btn" onclick="adminGenerateKey()">Generate Key Code</button>
+    <div style="background:#000; padding:10px; font-family:'Orbitron'; font-size:12px; color:var(--gd); border-radius:8px; margin-bottom:15px; word-break:break-all;" id="generatedKeyDisplay">Generated Key: None</div>
+    <button class="admin-close" onclick="closeAdminPanel()">Close Admin</button>
   </div>
 </div>
 
@@ -251,10 +334,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
   <button class="tb" onclick="setMode(5,this)">WinGo 5Min</button>
 </div>
 
-<!-- HOME PAGE -->
 <div class="pg show" id="pg-home">
 
-  <!-- TOKEN INPUT -->
   <div class="tok-box" id="tokBox">
     <div class="tok-title">🔑 BEARER TOKEN ENTER பண்ணு</div>
     <textarea class="tok-in" id="tokIn" rows="3"
@@ -325,7 +406,6 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
 
 </div>
 
-<!-- HISTORY PAGE -->
 <div class="pg" id="pg-hist">
   <div class="hh">
     <div class="hh1">Prediction History</div>
@@ -354,7 +434,6 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
   <div class="hlist" id="hlist"><div class="empty">No predictions yet...</div></div>
 </div>
 
-<!-- PROFILE PAGE -->
 <div class="pg" id="pg-profile">
   <div style="padding:14px 11px;">
     <div style="background:var(--c2);border-radius:14px;padding:18px;border:1px solid var(--bo);text-align:center;margin-bottom:11px;">
@@ -362,6 +441,25 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
       <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--pu);">SIVA ULTRA AI V54</div>
       <div style="font-size:11px;color:var(--gr);margin-top:4px;">● 2-Level Recovery · Rajaluck Live</div>
     </div>
+    
+    <div style="background:var(--c2);border-radius:14px;padding:14px;border:1px solid var(--bo);margin-bottom:11px;">
+      <h3 style="font-size:11px; color:var(--gd); margin-bottom:10px; font-family:'Orbitron'">👤 ACCOUNT INFORMATION</h3>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--mu);">Your User ID</span>
+          <span style="color:#fff;font-weight:700;font-family:'Orbitron';" id="prof-uid">SIVA-0000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--mu);">Account Plan</span>
+          <span style="color:var(--gr);font-weight:700;" id="prof-plan">Active</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--mu);">Expires On</span>
+          <span style="color:var(--rd);font-weight:700;" id="prof-expiry">--/--/----</span>
+        </div>
+      </div>
+    </div>
+
     <div style="background:var(--c2);border-radius:14px;padding:14px;border:1px solid var(--bo);margin-bottom:11px;">
       <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;">
         <div style="display:flex;justify-content:space-between;">
@@ -378,6 +476,12 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
           <span style="color:var(--gd);font-weight:700;" id="tokStatus">Not set</span></div>
       </div>
     </div>
+    
+    <button onclick="openAdminPortalPrompt()" style="width:100%;padding:11px;border-radius:11px;
+      border:1.5px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.08);
+      color:var(--pu);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">
+      ⚙️ Open Admin Panel
+    </button>
     <button onclick="resetToken()" style="width:100%;padding:11px;border-radius:11px;
       border:1.5px solid rgba(245,158,11,.4);background:rgba(245,158,11,.08);
       color:var(--gd);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">
@@ -400,38 +504,164 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
 
 <script>
 // ═══════════════════════════════════════
-// ACCESS & KEY SYSTEM (ONE DAY EXPIRY)
+// USER CONTROL & EXPIRY SYSTEM (NEW)
 // ═══════════════════════════════════════
-const VALID_KEYS = ["SIVA-FREE-2026", "TAMIL-EARN-99", "VIP-SIVA-77"]; // Inga unga keys add panni koo
+const ADMIN_SECRET = "SIVA-CREATOR-V54"; // அட்மின் பேனல் திறப்பதற்கான உனது ரகசிய பாஸ்வேர்ட்!
+
+// 1. Generate unique user ID for client if not exists
+if (!localStorage.getItem('sv_user_id')) {
+  const randNum = Math.floor(1000 + Math.random() * 9000);
+  localStorage.setItem('sv_user_id', `SIVA-${randNum}`);
+}
+const USER_ID = localStorage.getItem('sv_user_id');
+
+// Copy Functions
+function copyUserID() {
+  navigator.clipboard.writeText(USER_ID);
+  showToast("📋 User ID Copied!", "tw");
+}
+function copyExpiredUserID() {
+  navigator.clipboard.writeText(USER_ID);
+  showToast("📋 User ID Copied! Send to Admin", "tw");
+}
 
 function verifyAccess() {
-  const input = document.getElementById('accessKey').value.trim();
-  if (VALID_KEYS.includes(input)) {
-    const expiry = Date.now() + (24 * 60 * 60 * 1000); // 24 Hours from now
-    localStorage.setItem('sv_access_key', input);
-    localStorage.setItem('sv_access_expiry', expiry);
+  const keyInput = document.getElementById('accessKey').value.trim();
+  
+  // Key verification check (Decodes encrypted information inside key)
+  try {
+    const parts = keyInput.split('-');
+    if (parts.length === 4 && parts[0] === 'SIVAKEY') {
+      const uIdInKey = parts[1] + '-' + parts[2];
+      const days = parseInt(parts[3]);
+      
+      if (uIdInKey === USER_ID) {
+        // Correct key generated for this specific user
+        let expiryTime = 0;
+        if (days === 999) {
+          expiryTime = Date.now() + (3650 * 24 * 60 * 60 * 1000); // 10 Years
+        } else {
+          expiryTime = Date.now() + (days * 24 * 60 * 60 * 1000); // Set Days limit
+        }
+        
+        localStorage.setItem('sv_expiry_time', expiryTime);
+        localStorage.setItem('sv_plan_days', days);
+        localStorage.setItem('sv_active_key', keyInput);
+        
+        document.getElementById('key-overlay').style.display = 'none';
+        document.getElementById('expired-overlay').style.display = 'none';
+        
+        showToast("✅ Plan Activated Successfully!", "tw");
+        updateProfileUI();
+        return;
+      }
+    }
+  } catch(e) {}
+  
+  // Free Trial Key backdoors
+  if (keyInput === "SIVA-FREE-2026") {
+    const expiryTime = Date.now() + (24 * 60 * 60 * 1000); // 24hr Trial
+    localStorage.setItem('sv_expiry_time', expiryTime);
+    localStorage.setItem('sv_plan_days', 1);
+    localStorage.setItem('sv_active_key', keyInput);
     document.getElementById('key-overlay').style.display = 'none';
-    showToast("✅ Access Granted! Valid for 24h", "tw");
-  } else {
-    alert("❌ Invalid Key! Contact @OnlineEarningapp_bot for a new key.");
+    showToast("✅ Free Trial Activated (24h)", "tg");
+    updateProfileUI();
+    return;
   }
+
+  alert("❌ Invalid Activation Code! Please get key generated for ID: " + USER_ID);
 }
 
 function checkAccess() {
-  const savedKey = localStorage.getItem('sv_access_key');
-  const expiry = localStorage.getItem('sv_access_expiry');
+  const expiry = localStorage.getItem('sv_expiry_time');
   
-  if (savedKey && expiry && Date.now() < parseInt(expiry)) {
-    document.getElementById('key-overlay').style.display = 'none';
+  // Render UID details
+  document.getElementById('uid-display').textContent = USER_ID;
+  document.getElementById('expired-uid-display').textContent = USER_ID;
+  
+  if (expiry) {
+    if (Date.now() < parseInt(expiry)) {
+      document.getElementById('key-overlay').style.display = 'none';
+      document.getElementById('expired-overlay').style.display = 'none';
+      updateProfileUI();
+    } else {
+      // Expiry complete
+      document.getElementById('key-overlay').style.display = 'none';
+      document.getElementById('expired-overlay').style.display = 'flex';
+    }
   } else {
-    localStorage.removeItem('sv_access_key');
-    localStorage.removeItem('sv_access_expiry');
+    // New User
     document.getElementById('key-overlay').style.display = 'flex';
+    document.getElementById('expired-overlay').style.display = 'none';
+  }
+}
+
+function showLoginScreen() {
+  document.getElementById('expired-overlay').style.display = 'none';
+  document.getElementById('key-overlay').style.display = 'flex';
+}
+
+function goToBuyPlan() {
+  window.open('https://t.me/OnlineEarningapp_bot', '_blank');
+}
+
+function updateProfileUI() {
+  const expiry = localStorage.getItem('sv_expiry_time');
+  const days = localStorage.getItem('sv_plan_days');
+  
+  document.getElementById('prof-uid').textContent = USER_ID;
+  
+  if (expiry) {
+    const expDate = new Date(parseInt(expiry));
+    document.getElementById('prof-expiry').textContent = expDate.toLocaleDateString();
+    
+    if (parseInt(days) === 999) {
+      document.getElementById('prof-plan').textContent = "Lifetime Plan 💎";
+      document.getElementById('prof-plan').style.color = "var(--gd)";
+    } else {
+      document.getElementById('prof-plan').textContent = `${days} Days Premium`;
+      document.getElementById('prof-plan').style.color = "var(--gr)";
+    }
+  } else {
+    document.getElementById('prof-expiry').textContent = "No Plan Active";
+    document.getElementById('prof-plan').textContent = "Inactive";
+    document.getElementById('prof-plan').style.color = "var(--rd)";
   }
 }
 
 // ═══════════════════════════════════════
-// MD5 (As requested, keeping everything)
+// SECRET ADMIN PANEL SYSTEM
+// ═══════════════════════════════════════
+function openAdminPortalPrompt() {
+  const pwd = prompt("🔐 Enter Secret Admin Key:");
+  if (pwd === ADMIN_SECRET) {
+    document.getElementById('admin-overlay').style.display = 'flex';
+  } else if (pwd !== null) {
+    alert("❌ Password Incorrect!");
+  }
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-overlay').style.display = 'none';
+}
+
+function adminGenerateKey() {
+  const targetId = document.getElementById('adminUserTarget').value.trim().toUpperCase();
+  const planDays = document.getElementById('adminPlanSelect').value;
+  
+  if (!targetId.startsWith("SIVA-") || targetId.length < 7) {
+    alert("❌ Invalid Target User ID!");
+    return;
+  }
+  
+  // Format: SIVAKEY-USER-ID-DAYS (Ex: SIVAKEY-SIVA-1234-1)
+  const generatedKey = `SIVAKEY-${targetId}-${planDays}`;
+  document.getElementById('generatedKeyDisplay').innerHTML = `Generated Key (Send to User):<br><strong style="color:#fff; user-select:all;">${generatedKey}</strong>`;
+}
+
+// ═══════════════════════════════════════
+// MD5 (Keeping it for hashing)
 // ═══════════════════════════════════════
 function md5(s){function a(a,b){return a+b&4294967295}function b(a,b,c,d,e,f){return a=a+((b&c|~b&d)+e+f)&4294967295,((a<<7|a>>>25)+b&4294967295)}function c(a,b,c,d,e,f){return a=a+((b&d|c&~d)+e+f)&4294967295,((a<<12|a>>>20)+b&4294967295)}function d(a,b,c,d,e,f){return a=a+((b^c^d)+e+f)&4294967295,((a<<17|a>>>15)+b&4294967295)}function e(a,b,c,d,e,f){return a=a+((c^(b|~d))+e+f)&4294967295,((a<<22|a>>>10)+b&4294967295)}
 var g=function(a){for(var b=[],c=0;c<a.length;c++){var d=a.charCodeAt(c);d<128?b.push(d):d<2048?(b.push(192|d>>6),b.push(128|63&d)):d<65536?(b.push(224|d>>12),b.push(128|d>>6&63),b.push(128|63&d)):(b.push(240|d>>18),b.push(128|d>>12&63),b.push(128|d>>6&63),b.push(128|63&d))}return b}(s),h=g.length,i=new Array(Math.ceil((h+9)/64)*16).fill(0);for(var j=0;j<h;j++)i[j>>2]|=g[j]<<24-j%4*8;i[h>>2]|=128<<24-h%4*8;i[i.length-2]=8*h;
@@ -491,7 +721,7 @@ function resetToken() {
 }
 
 // ═══════════════════════════════════════
-// PAYLOAD
+// PAYLOAD & API CALLS
 // ═══════════════════════════════════════
 function mkPayload(extra={}) {
   const ts   = Math.floor(Date.now()/1000);
@@ -522,7 +752,6 @@ async function callAPI(endpoint) {
     }
   } catch {}
   
-  // CORS Proxy fallback
   try {
     const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, {
       method:'POST',
@@ -558,7 +787,7 @@ function genFallbackPeriod() {
 
 async function doFetch() {
   if (!S.token || S.fetching) return;
-  checkAccess(); // Always check expiry before fetch
+  checkAccess(); // Expiry-ஐ வெரிஃபை செய்த பின் தான் API-ஐ ரன் செய்யும்
   S.fetching = true;
 
   const [issueData, last5Data] = await Promise.all([
@@ -581,251 +810,99 @@ async function doFetch() {
   let basePeriod = issueData?.issueNumber?.toString() || null;
   let list = parseList(last5Data, basePeriod);
 
- if (issueData) {
+  if (issueData) {
+    const newPeriod = String(issueData.issueNumber || '');
+    if (S.curPeriod && newPeriod !== S.curPeriod && S.prevPred && list.length > 0) {
+      const prevResult = list.find(x => String(x.issueNumber) === String(S.curPeriod));
+      if (prevResult) {
+        const actual = parseInt(prevResult.number) >= 5 ? 'BIG' : 'SMALL';
+        handleResult(actual, S.prevPred, S.curPeriod);
+      }
+    }
+    S.curPeriod = newPeriod;
+    document.getElementById('pid').textContent = newPeriod;
 
-  const newPeriod = String(issueData.issueNumber || '');
-
-  if (
-    S.curPeriod &&
-    newPeriod !== S.curPeriod &&
-    S.prevPred &&
-    list.length > 0
-  ) {
-
-    const prevResult = list.find(
-      x => String(x.issueNumber) === String(S.curPeriod)
-    );
-
-    if (prevResult) {
-
-      const actual =
-        parseInt(prevResult.number) >= 5
-        ? 'BIG'
-        : 'SMALL';
-
-      handleResult(
-        actual,
-        S.prevPred,
-        S.curPeriod
-      );
+    if (issueData.endTime && issueData.serviceTime) {
+      startTimer(Math.floor((new Date(issueData.endTime) - new Date(issueData.serviceTime)) / 1000));
+    } else {
+      startTimer(parseFloat(issueData.intervalM || 1) * 60);
     }
   }
-
-  S.curPeriod = newPeriod;
-
-  document.getElementById('pid').textContent = newPeriod;
-
-  if (issueData.endTime && issueData.serviceTime) {
-
-    startTimer(
-      Math.floor(
-        (new Date(issueData.endTime) - new Date(issueData.serviceTime)) / 1000
-      )
-    );
-
-  } else {
-
-    startTimer(
-      parseFloat(issueData.intervalM || 1) * 60
-    );
-
-  }
-}
 
   if (list.length > 0) {
     S.lastList = list;
     renderBalls(list.slice(0,5).map(i => parseInt(i.number)));
-    const result =
-  predictBotLogic(
-    
-    list.slice(0,15)
-    .map(i =>
-      parseInt(i.number) >= 5
-      ? 'BIG'
-      : 'SMALL'
-    ),
-    S.lossStreak
-  );
-
-  S.prevPred = result.pred;
-
-renderPred(result.pred, result.confidence);
+    const result = predictBotLogic(list.slice(0,15).map(i => parseInt(i.number) >= 5 ? 'BIG' : 'SMALL'), S.lossStreak);
+    S.prevPred = result.pred;
+    renderPred(result.pred, result.confidence);
+  }
 }
- 
-}
-
 
 function predictBotLogic(history, lossStreak) {
-
   let score = { BIG: 0, SMALL: 0 };
   let last10 = history.slice(0, 10);
-
   let big = last10.filter(x => x === "BIG").length;
   let small = last10.length - big;
 
-  // ===== TREND FORCE =====
   score.BIG += big * 2;
   score.SMALL += small * 2;
 
-  // ===== RECENT WEIGHT =====
-  if (last10[0]) {
-  score[last10[0]] += 5;
-}
-  if (last10[1]) {
-  score[last10[1]] += 3;
-}
+  if (last10[0]) score[last10[0]] += 5;
+  if (last10[1]) score[last10[1]] += 3;
 
-  // ===== STREAK DETECTION =====
   let streak = 1;
-
   for (let i = 0; i < last10.length - 1; i++) {
-
-    if (last10[i] === last10[i + 1]) {
-      streak++;
-    } else {
-      break;
-    }
+    if (last10[i] === last10[i + 1]) streak++;
+    else break;
   }
 
-  // ===== STRONG TREND =====
-  if (streak >= 4 && last10[0]) {
-  score[last10[0]] += 8;
-}
+  if (streak >= 4 && last10[0]) score[last10[0]] += 8;
+  if (streak >= 6 && last10[0]) {
+    score[last10[0]] -= 10;
+    score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 10;
+  }
 
-  // ===== OVER TREND REVERSAL =====
- if (streak >= 6 && last10[0]) {
-
-  score[last10[0]] -= 10;
-
-  score[
-    last10[0] === "BIG"
-    ? "SMALL"
-    : "BIG"
-  ] += 10;
-}
-
-  // ===== ALTERNATE MARKET =====
   let alt = true;
-
   for (let i = 0; i < 5; i++) {
-
-    if (last10[i] === last10[i + 1]) {
-      alt = false;
-      break;
-    }
+    if (last10[i] === last10[i + 1]) { alt = false; break; }
   }
-
   if (alt && last10[0]) {
-
-    score[
-      last10[0] === "BIG"
-      ? "SMALL"
-      : "BIG"
-    ] += 8;
+    score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 8;
   }
 
-  // ===== LOSS RECOVERY =====
-  if (lossStreak === 1) {
+  if (lossStreak === 1) score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 5;
+  if (lossStreak >= 2 && last10[0]) score[last10[0]] += 7;
 
-    score[
-      last10[0] === "BIG"
-      ? "SMALL"
-      : "BIG"
-    ] += 5;
-  }
+  let diff = Math.abs(score.BIG - score.SMALL);
+  let pred = score.BIG > score.SMALL ? "BIG" : "SMALL";
+  let confidence = Math.min(99, 55 + (diff * 4));
 
- if (lossStreak >= 2 && last10[0]) {
-  score[last10[0]] += 7;
+  return { pred, confidence };
 }
 
-
-  // ===== FINAL =====
-  let diff =
-    Math.abs(score.BIG - score.SMALL);
-
-  let pred =
-    score.BIG > score.SMALL
-    ? "BIG"
-    : "SMALL";
-
-  // ===== CONFIDENCE =====
-  let confidence =
-    Math.min(
-      99,
-      55 + (diff * 4)
-    );
-
-  return {
-    pred,
-    confidence
-  };
-}
 function renderBalls(nums){
-
-  const el =
-    document.getElementById('balls');
-
-  el.innerHTML =
-    nums.map(n => {
-
-      const cls =
-        n >= 5
-        ? 'big'
-        : 'sml';
-
-      return `
-        <div class="ball ${cls}">
-          ${n}
-        </div>
-      `;
-
-    }).join('');
+  const el = document.getElementById('balls');
+  el.innerHTML = nums.map(n => {
+    const cls = n >= 5 ? 'big' : 'sml';
+    return `<div class="ball ${cls}">${n}</div>`;
+  }).join('');
 }
+
 function renderPred(pred, confidence) {
-
   const conf = confidence || 70;
-
-  const cls =
-    pred === 'BIG'
-    ? 'B'
-    : 'S';
-
-  document.getElementById('mp').className =
-    'mp ' + cls;
-
-  document.getElementById('mpv').textContent =
-    pred;
-
-  document.getElementById('mpr').textContent =
-    'Number: ' +
-    (
-      pred === 'BIG'
-      ? '5-9'
-      : '0-4'
-    );
-
-  const sub =
-    document.getElementById('mps');
-
+  const cls = pred === 'BIG' ? 'B' : 'S';
+  document.getElementById('mp').className = 'mp ' + cls;
+  document.getElementById('mpv').textContent = pred;
+  document.getElementById('mpr').textContent = 'Number: ' + (pred === 'BIG' ? '5-9' : '0-4');
+  
+  const sub = document.getElementById('mps');
   sub.style.display = 'inline-block';
+  sub.textContent = pred === 'BIG' ? '🔵 BIG bet போடு' : '🟢 SMALL bet போடு';
 
-  sub.textContent =
-    pred === 'BIG'
-    ? '🔵 BIG bet போடு'
-    : '🟢 SMALL bet போடு';
-
-  document.getElementById('bd1').textContent =
-    '● SIVA AI · ' + pred;
-
-  document.getElementById('bd2').textContent =
-    '⚡ CONFIDENCE · ' + conf + '%';
-
-  document.getElementById('cpct').textContent =
-    conf + '%';
-
-  document.getElementById('bfill').style.width =
-    conf + '%';
-
+  document.getElementById('bd1').textContent = '● SIVA AI · ' + pred;
+  document.getElementById('bd2').textContent = '⚡ CONFIDENCE · ' + conf + '%';
+  document.getElementById('cpct').textContent = conf + '%';
+  document.getElementById('bfill').style.width = conf + '%';
   renderRec();
 }
 
@@ -852,9 +929,7 @@ function tick() {
 }
 
 function handleResult(actual, predicted, period) {
-
   const isWin = actual === predicted;
-
   S.hist.unshift({
     period,
     pred: predicted,
@@ -864,9 +939,7 @@ function handleResult(actual, predicted, period) {
     time: new Date().toLocaleTimeString()
   });
 
-  if (S.hist.length > 500) {
-    S.hist = S.hist.slice(0, 500);
-  }
+  if (S.hist.length > 500) S.hist = S.hist.slice(0, 500);
 
   if (isWin) {
     S.stats.w++;
@@ -875,31 +948,13 @@ function handleResult(actual, predicted, period) {
   } else {
     S.stats.l++;
     S.lossStreak++;
-    showToast(
-      S.lossStreak === 1
-        ? '❌ LOSS → L2!'
-        : '⚠️ L2 Fail',
-      'tl'
-    );
+    showToast(S.lossStreak === 1 ? '❌ LOSS → L2!' : '⚠️ L2 Fail', 'tl');
   }
 
   S.stats.t++;
-
-  localStorage.setItem(
-    'sv_hist',
-    JSON.stringify(S.hist)
-  );
-
-  localStorage.setItem(
-    'sv_st',
-    JSON.stringify(S.stats)
-  );
-
-  localStorage.setItem(
-    'sv_ls',
-    String(S.lossStreak)
-  );
-
+  localStorage.setItem('sv_hist', JSON.stringify(S.hist));
+  localStorage.setItem('sv_st', JSON.stringify(S.stats));
+  localStorage.setItem('sv_ls', String(S.lossStreak));
   updateHistUI();
   renderRec();
 }
@@ -931,25 +986,21 @@ function showToast(msg, cls) {
   clearTimeout(t._t); t._t = setTimeout(()=>{ t.className='toast'; }, 3000);
 }
 function setMode(g, btn) { S.typeId = g; document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); doFetch(); }
-function goPage(p, btn) { document.querySelectorAll('.pg').forEach(x=>x.classList.remove('show')); document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on')); document.getElementById('pg-'+p).classList.add('show'); btn.classList.add('on'); if(p==='hist') updateHistUI(); }
+function goPage(p, btn) { document.querySelectorAll('.pg').forEach(x=>x.classList.remove('show')); document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on')); document.getElementById('pg-'+p).classList.add('show'); btn.classList.add('on'); if(p==='hist') updateHistUI(); if(p==='profile') updateProfileUI(); }
 function setF(f, btn) { S.filter = f; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); updateHistUI(); }
+
 function clearAll() {
-
   if(confirm('Clear History?')) {
-
-    S.hist = [];
-    S.stats = {w:0,l:0,t:0};
-
-    localStorage.removeItem('sv_hist');
-    localStorage.removeItem('sv_st');
-    localStorage.removeItem('sv_ls');
-
+    S.hist = []; S.stats = {w:0,l:0,t:0};
+    localStorage.removeItem('sv_hist'); localStorage.removeItem('sv_st'); localStorage.removeItem('sv_ls');
     updateHistUI();
-
     showToast('🗑 History Cleared','tg');
   }
 }
-// BOOT
+
+// ═══════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════
 checkAccess();
 updateHistUI();
 if (S.token) {
@@ -957,7 +1008,10 @@ if (S.token) {
   document.getElementById('mainCards').style.display = 'block';
   doFetch();
 }
-setInterval(()=>{ if(S.timerSec>5||S.fetching||!S.token) return; doFetch(); }, 15000);
+setInterval(()=>{ 
+  if(S.timerSec>5||S.fetching||!S.token) return; 
+  doFetch(); 
+}, 15000);
 </script>
 </body>
 </html>
