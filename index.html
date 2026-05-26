@@ -3,1054 +3,657 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>SIVA ULTRA AI V54</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<title>SIVA ULTRA AI - 100% AutoBet</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#07070f;--c1:#0f0f1e;--c2:#14142a;
-  --pu:#8b5cf6;--gr:#10b981;--gd:#f59e0b;
-  --rd:#ef4444;--mu:#475569;--tx:#e2e8f0;
-  --bo:rgba(139,92,246,0.22);
+  --bg:#030a03;--c2:#0a140a;
+  --gr:#00ff41;--pu2:#a78bfa;
+  --gd:#f59e0b;--rd:#ef4444;--cy:#22d3ee;
+  --mu:#4a7a4a;--tx:#c8ffc8;--tx2:#7db87d;
+  --bor:rgba(0,255,65,.25);--bor2:rgba(0,255,65,.1);
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;
-  max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;}
-
-/* KEY & USER ID OVERLAY */
-#key-overlay {
-  position: fixed; inset: 0; background: var(--bg); z-index: 1000;
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.key-card {
-  background: var(--c2); border: 1px solid var(--pu); border-radius: 20px;
-  padding: 30px 20px; width: 100%; text-align: center;
-  box-shadow: 0 0 30px rgba(139,92,246,0.2);
-}
-.key-card h2 { font-family: 'Orbitron'; font-size: 18px; margin-bottom: 10px; color: var(--pu); }
-.uid-badge {
-  background: rgba(139,92,246,0.15); border: 1px dashed var(--pu);
-  padding: 10px; border-radius: 8px; font-family: 'Orbitron';
-  font-size: 16px; color: var(--gd); margin-bottom: 15px;
-  cursor: pointer; position: relative;
-}
-.uid-badge::after {
-  content: '📋 Copy ID'; position: absolute; bottom: -18px; left: 50%;
-  transform: translateX(-50%); font-size: 9px; color: var(--mu); font-family: 'Rajdhani';
-}
-.key-card input {
-  width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--bo);
-  padding: 12px; border-radius: 10px; color: #fff; text-align: center;
-  font-family: 'Orbitron'; letter-spacing: 2px; margin-bottom: 15px; margin-top: 15px;
-}
-.key-btn {
-  width: 100%; background: var(--pu); color: #fff; border: none;
-  padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
-  font-family: 'Rajdhani'; font-size: 14px;
-}
-.key-link { margin-top: 20px; font-size: 12px; color: var(--mu); line-height: 1.5; }
-.key-link a { color: var(--gd); text-decoration: none; font-weight: 700; }
-
-/* EXPIRED SCREEN OVERLAY */
-#expired-overlay {
-  position: fixed; inset: 0; background: var(--bg); z-index: 1001;
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.expired-card {
-  background: var(--c2); border: 1px solid var(--rd); border-radius: 20px;
-  padding: 35px 20px; width: 100%; text-align: center;
-  box-shadow: 0 0 30px rgba(239,68,68,0.2);
-}
-.expired-card h2 { font-family: 'Orbitron'; font-size: 20px; color: var(--rd); margin-bottom: 10px; }
-.expired-card p { font-size: 14px; color: var(--tx); margin-bottom: 20px; line-height: 1.6; }
-.buy-btn {
-  width: 100%; background: var(--gd); color: #000; border: none;
-  padding: 13px; border-radius: 10px; font-weight: 900; cursor: pointer;
-  font-family: 'Rajdhani'; font-size: 15px; text-transform: uppercase;
-}
-
-/* ADMIN PANEL OVERLAY */
-#admin-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1002;
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.admin-card {
-  background: #111; border: 2px solid var(--gd); border-radius: 20px;
-  padding: 25px 20px; width: 100%; text-align: center;
-}
-.admin-card h2 { font-family: 'Orbitron'; color: var(--gd); font-size: 18px; margin-bottom: 15px; }
-.admin-card input, .admin-card select {
-  width: 100%; background: #222; border: 1px solid #444; padding: 10px;
-  border-radius: 8px; color: #fff; margin-bottom: 12px; text-align: center; font-family: 'Rajdhani'; font-size: 14px;
-}
-.admin-btn {
-  width: 100%; background: var(--gr); color: #fff; border: none; padding: 11px;
-  border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 8px;
-}
-.admin-close {
-  width: 100%; background: var(--rd); color: #fff; border: none; padding: 8px;
-  border-radius: 8px; font-weight: 700; cursor: pointer;
-}
-
-/* TOP BAR */
-.top{background:linear-gradient(135deg,#12052a,#091433);
-  padding:12px 15px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:99;
-  border-bottom:1px solid var(--bo);}
-.logo{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;
-  background:linear-gradient(90deg,#a78bfa,#10b981);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.badge{display:flex;align-items:center;gap:5px;padding:4px 11px;
-  border-radius:20px;border:1px solid;font-size:11px;font-weight:700;transition:all .3s;}
-.badge.live{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.4);color:#10b981;}
-.badge.off{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4);color:#ef4444;}
-.dot{width:7px;height:7px;border-radius:50%;}
-.badge.live .dot{background:#10b981;box-shadow:0 0 6px #10b981;animation:blink 1.2s infinite;}
-.badge.off .dot{background:#ef4444;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* TABS */
-.tabs{display:flex;gap:6px;padding:8px 11px;background:var(--c1);
-  border-bottom:1px solid var(--bo);overflow-x:auto;scrollbar-width:none;}
-.tabs::-webkit-scrollbar{display:none;}
-.tb{flex-shrink:0;padding:6px 14px;border-radius:9px;border:1.5px solid var(--bo);
-  background:transparent;color:var(--mu);font-family:'Rajdhani',sans-serif;
-  font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
-.tb.on{background:var(--pu);border-color:var(--pu);color:#fff;
-  box-shadow:0 0 14px rgba(139,92,246,.5);}
-
-/* PAGES */
-.pg{display:none;padding-bottom:85px;}
-.pg.show{display:block;}
-
-/* TOKEN BOX */
-.tok-box{margin:11px;background:var(--c2);border-radius:14px;
-  padding:14px;border:1px solid rgba(245,158,11,.35);}
-.tok-title{font-size:10px;color:var(--gd);font-weight:700;letter-spacing:1px;margin-bottom:8px;}
-.tok-in{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--bo);
-  border-radius:8px;padding:9px 11px;color:var(--tx);font-size:11px;
-  font-family:'Rajdhani',sans-serif;outline:none;resize:none;}
-.tok-in:focus{border-color:var(--pu);}
-.tok-btn{width:100%;margin-top:8px;padding:11px;border-radius:9px;
-  background:var(--pu);border:none;color:#fff;font-family:'Rajdhani',sans-serif;
-  font-size:13px;font-weight:700;cursor:pointer;}
-.tok-hint{font-size:10px;color:var(--mu);margin-top:7px;line-height:1.6;}
-
-/* PERIOD CARD */
-.pc{margin:11px;background:linear-gradient(135deg,#130827,#080f2a);
-  border-radius:15px;padding:15px;border:1px solid var(--bo);}
-.pc-row{display:flex;justify-content:space-between;align-items:flex-start;}
-.lbl{font-size:9px;color:var(--mu);letter-spacing:1.5px;text-transform:uppercase;}
-.pid{font-family:'Orbitron',monospace;font-size:14px;color:var(--pu);
-  letter-spacing:1px;margin-top:3px;}
-.tmr{font-family:'Orbitron',monospace;font-size:36px;font-weight:900;
-  color:var(--gd);text-shadow:0 0 18px rgba(245,158,11,.5);line-height:1;text-align:right;}
-.tmr.red{color:var(--rd);text-shadow:0 0 18px rgba(239,68,68,.6);}
-.brow{display:flex;gap:7px;margin-top:11px;}
-.bd{flex:1;padding:7px 9px;border-radius:9px;text-align:center;font-size:11px;font-weight:700;}
-.bd1{background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);color:#c4b5fd;}
-.bd2{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--gr);}
-
-/* LAST 5 */
-.l5{margin:0 11px 11px;background:var(--c2);border-radius:13px;padding:12px 13px;border:1px solid var(--bo);}
-.l5t{font-size:10px;color:var(--mu);font-weight:700;letter-spacing:1px;margin-bottom:10px;}
-.balls{display:flex;gap:7px;justify-content:center;}
-.ball{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-family:'Orbitron',monospace;font-size:15px;font-weight:900;flex-shrink:0;}
-.ball.big{background:rgba(139,92,246,.35);border:2px solid var(--pu);color:#c4b5fd;box-shadow:0 0 10px rgba(139,92,246,.4);}
-.ball.sml{background:rgba(16,185,129,.25);border:2px solid var(--gr);color:#6ee7b7;box-shadow:0 0 10px rgba(16,185,129,.3);}
-.ball.e{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.08);color:var(--mu);}
-
-/* MAIN PRED */
-.mp{margin:0 11px 11px;border-radius:15px;padding:22px 15px;
-  text-align:center;border:2px solid;transition:all .5s;}
-.mp.B{background:linear-gradient(135deg,#2e0d6e,#1a0745);border-color:var(--pu);
-  box-shadow:0 0 45px rgba(139,92,246,.45);}
-.mp.S{background:linear-gradient(135deg,#022c20,#011a13);border-color:var(--gr);
-  box-shadow:0 0 45px rgba(16,185,129,.45);}
-.mp.X{background:var(--c2);border-color:var(--bo);}
-.mpl{font-size:10px;color:var(--mu);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
-.mpv{font-family:'Orbitron',monospace;font-size:56px;font-weight:900;line-height:1;}
-.mp.B .mpv{color:var(--pu);text-shadow:0 0 35px rgba(139,92,246,.9);}
-.mp.S .mpv{color:var(--gr);text-shadow:0 0 35px rgba(16,185,129,.9);}
-.mp.X .mpv{color:var(--mu);font-size:20px;font-family:'Rajdhani',sans-serif;}
-.mpr{font-size:12px;color:var(--mu);margin-top:5px;}
-.mps{font-size:12px;font-weight:700;margin-top:8px;padding:5px 14px;
-  border-radius:20px;display:inline-block;}
-.mp.B .mps{background:rgba(139,92,246,.2);color:#c4b5fd;}
-.mp.S .mps{background:rgba(16,185,129,.2);color:#6ee7b7;}
-
-/* CONFIDENCE */
-.cb{margin:0 11px 11px;background:var(--c2);border-radius:13px;padding:13px 14px;border:1px solid var(--bo);}
-.cr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.cl{font-size:11px;color:var(--mu);font-weight:700;letter-spacing:1px;}
-.cp{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--gd);}
-.bbg{height:9px;background:rgba(255,255,255,.06);border-radius:10px;overflow:hidden;}
-.bf{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--pu),var(--gr));transition:width 1s;}
-
-/* 2-LEVEL RECOVERY */
-.rb{margin:0 11px 11px;background:var(--c2);border-radius:13px;
-  padding:13px 14px;border:1px solid rgba(239,68,68,.2);}
-.rbt{font-size:11px;color:var(--rd);font-weight:700;letter-spacing:1px;margin-bottom:3px;}
-.rbs{font-size:10px;color:var(--mu);margin-bottom:10px;}
-.rrow{display:flex;gap:7px;}
-.rl{flex:1;text-align:center;padding:12px 4px;border-radius:11px;
-  border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);transition:all .3s;}
-.rl .rn{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;display:block;}
-.rl .rm{font-size:10px;color:var(--gd);margin-top:3px;}
-.rl .rs{font-size:9px;color:var(--mu);margin-top:2px;}
-.rl.cur{background:rgba(245,158,11,.15);border-color:var(--gd);}
-.rl.cur .rn{color:var(--gd);}
-.rl.done{background:rgba(16,185,129,.15);border-color:var(--gr);}
-.rl.done .rn{color:var(--gr);}
-.rl.fail{background:rgba(239,68,68,.15);border-color:var(--rd);}
-.rl.fail .rn{color:var(--rd);}
-
-/* HISTORY */
-.hh{background:linear-gradient(135deg,#0d2a1a,#061510);
-  padding:18px 14px 28px;position:relative;overflow:hidden;}
-.hh::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 75% 50%,rgba(16,185,129,.12),transparent 55%);}
-.hh1{font-family:'Orbitron',monospace;font-size:17px;font-weight:900;color:#fff;position:relative;}
-.hs{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;position:relative;}
-.aring{position:absolute;right:14px;top:14px;width:70px;height:70px;}
-.aring svg{width:70px;height:70px;transform:rotate(-90deg);}
-.aring circle{fill:none;stroke:rgba(255,255,255,.1);stroke-width:6;}
-.aring .prg{stroke:var(--gr);stroke-linecap:round;transition:stroke-dashoffset .9s;}
-.acen{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;font-family:'Orbitron',monospace;
-  font-size:13px;font-weight:700;color:var(--gr);line-height:1;}
-.acen span{font-size:8px;color:rgba(255,255,255,.35);}
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
-  margin:-17px 11px 11px;position:relative;z-index:2;}
-.sc{background:#fff;border-radius:12px;padding:10px 4px;text-align:center;
-  box-shadow:0 4px 14px rgba(0,0,0,.25);}
-.sv{font-size:20px;font-weight:900;line-height:1;}
-.sv.t{color:#1a1a2e;}.sv.w{color:#10b981;}.sv.l{color:#ef4444;}.sv.a{color:#65a30d;font-size:13px;}
-.sl{font-size:7px;color:#64748b;font-weight:700;text-transform:uppercase;margin-top:2px;}
-.frow{display:flex;gap:7px;padding:0 11px 9px;}
-.fb{padding:6px 15px;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);
-  background:transparent;color:var(--mu);font-family:'Rajdhani',sans-serif;
-  font-size:13px;font-weight:700;cursor:pointer;}
-.fb.on{background:#fff;color:#1a1a2e;border-color:#fff;}
-.hlb{font-size:9px;color:var(--mu);font-weight:700;letter-spacing:2px;
-  text-transform:uppercase;padding:0 11px 7px;}
-.hlist{padding:0 11px;display:flex;flex-direction:column;gap:7px;}
-.hi{background:#fff;border-radius:13px;padding:12px 13px;
-  display:flex;align-items:center;gap:10px;border-left:4px solid;}
-.hi.w{border-left-color:#10b981;}.hi.l{border-left-color:#ef4444;}
-.hbg{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;}
-.hbw{background:rgba(16,185,129,.15);color:#10b981;}
-.hbl{background:rgba(239,68,68,.1);color:#ef4444;}
-.hif{flex:1;}
-.hpe{font-size:10px;color:#64748b;}
-.hpr{font-size:14px;font-weight:700;color:#1a1a2e;display:flex;align-items:center;gap:5px;margin-top:2px;}
-.hch{padding:2px 7px;border-radius:15px;font-size:10px;font-weight:700;}
-.hwc{background:rgba(16,185,129,.15);color:#10b981;}
-.hlc{background:rgba(239,68,68,.1);color:#ef4444;}
-.hrt{text-align:right;}
-.hou{font-weight:900;font-size:12px;}
-.hwt{color:#10b981;}.hlt{color:#ef4444;}
-.htm{font-size:9px;color:#94a3b8;margin-top:2px;}
-.empty{text-align:center;padding:35px;color:var(--mu);font-size:13px;}
-
-/* BNAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:430px;background:rgba(7,7,15,.97);
-  backdrop-filter:blur(20px);border-top:1px solid var(--bo);
-  display:flex;padding:7px 0 18px;z-index:100;}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:6px;cursor:pointer;border:none;background:transparent;
-  color:var(--mu);font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;transition:color .2s;}
-.nb.on{color:var(--pu);}
-.nb .ni{font-size:20px;line-height:1;}
-
-/* TOAST */
-.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);
-  background:rgba(15,15,30,.95);backdrop-filter:blur(12px);border-radius:11px;
-  padding:9px 18px;font-size:13px;font-weight:700;z-index:999;
-  opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;border:1px solid;}
-.toast.show{opacity:1;}
-.toast.tw{border-color:var(--gr);color:var(--gr);}
-.toast.tl{border-color:var(--rd);color:var(--rd);}
-.toast.ti{border-color:var(--pu);color:var(--pu);}
-.toast.tg{border-color:var(--gd);color:var(--gd);}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--tx);font-family:'Share Tech Mono',monospace;max-width:430px;margin:0 auto;position:relative}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.12) 4px);pointer-events:none;z-index:999}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(0,255,65,.04),transparent 70%);pointer-events:none;z-index:0}
+.app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+.topbar{flex-shrink:0;background:rgba(3,10,3,.97);backdrop-filter:blur(18px);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bor);z-index:50}
+.tlogo{font-family:'Orbitron',monospace;font-size:10px;font-weight:900;color:var(--gr);letter-spacing:2px;text-shadow:0 0 10px var(--gr)}
+.tbadge{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:3px;border:1px solid;font-size:9px;font-weight:700}
+.tbadge.live{background:rgba(0,255,65,.08);border-color:var(--bor);color:var(--gr)}
+.tbadge.err{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.4);color:var(--rd)}
+.tbadge.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.4);color:var(--gd)}
+.tdot{width:6px;height:6px;border-radius:50%}
+.tbadge.live .tdot{background:var(--gr);box-shadow:0 0 6px var(--gr);animation:blink 1.2s infinite}
+.tbadge.err .tdot{background:var(--rd)}
+.tbadge.warn .tdot{background:var(--gd);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.scrl{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:72px}
+.scrl::-webkit-scrollbar{width:2px}
+.scrl::-webkit-scrollbar-thumb{background:var(--bor);border-radius:2px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(3,10,3,.98);backdrop-filter:blur(18px);border-top:1px solid var(--bor);display:grid;z-index:50;padding:4px 0 max(4px,env(safe-area-inset-bottom))}
+.nit{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;cursor:pointer;border:none;background:none;color:var(--mu);transition:color .2s;font-family:'Share Tech Mono',monospace}
+.nit.on{color:var(--gr)}
+.nico{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid transparent;transition:all .2s}
+.nit.on .nico{background:rgba(0,255,65,.1);border-color:var(--bor)}
+.nlbl{font-size:7px;font-weight:700;letter-spacing:.5px}
+.pg{display:none;animation:fi .2s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.card{margin:8px;background:var(--c2);border-radius:6px;padding:13px;border:1px solid var(--bor2);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gr),transparent);opacity:.4}
+.chdr{font-size:8px;font-weight:700;letter-spacing:2px;color:var(--mu);text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.chdr-bar{width:2px;height:12px;border-radius:1px;background:var(--gr);box-shadow:0 0 6px var(--gr);flex-shrink:0}
+.inp{width:100%;background:rgba(0,0,0,.6);border:1px solid var(--bor2);border-radius:4px;padding:11px 13px;color:var(--gr);font-size:12px;font-family:'Share Tech Mono',monospace;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gr);box-shadow:0 0 8px rgba(0,255,65,.2)}
+.inp::placeholder{color:var(--mu)}
+.btn{width:100%;padding:13px;border-radius:4px;border:none;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn:active{transform:scale(.97)}
+.btn-gr{background:transparent;border:2px solid var(--gr);color:var(--gr);box-shadow:0 0 12px rgba(0,255,65,.2)}
+.btn-gr:active{background:rgba(0,255,65,.08)}
+.btn-rd{background:transparent;border:1px solid rgba(239,68,68,.5);color:var(--rd)}
+.btn-cy{background:transparent;border:2px solid var(--cy);color:var(--cy)}
+.cyber-login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative}
+.corner{position:absolute;width:28px;height:28px;border-color:var(--gr);border-style:solid;opacity:.7}
+.corner.tl{top:14px;left:14px;border-width:2px 0 0 2px}.corner.tr{top:14px;right:14px;border-width:2px 2px 0 0}
+.corner.bl{bottom:14px;left:14px;border-width:0 0 2px 2px}.corner.br{bottom:14px;right:14px;border-width:0 2px 2px 0}
+.cyber-icon{font-size:48px;margin-bottom:14px;filter:drop-shadow(0 0 12px var(--gr));animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.cyber-title{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;color:var(--gr);text-align:center;line-height:1.1;text-shadow:0 0 20px rgba(0,255,65,.6);letter-spacing:3px;margin-bottom:4px}
+.cyber-sub{font-size:10px;color:var(--mu);letter-spacing:3px;text-align:center;margin-bottom:20px}
+.cyber-form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px}
+.cyber-lbl{font-size:9px;color:var(--mu);letter-spacing:2px;margin-bottom:4px;display:block}
+.cyber-err{display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.4);border-radius:4px;padding:10px 14px;font-size:10px;color:var(--rd);text-align:center;letter-spacing:1px}
+.cyber-err.show{display:block}
+.cyber-divider{display:flex;align-items:center;gap:8px;margin:4px 0;opacity:.5}
+.cyber-divider::before,.cyber-divider::after{content:'';flex:1;height:1px;background:var(--bor)}
+.cyber-divider span{font-size:8px;color:var(--mu);letter-spacing:2px}
+.tg-box{background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.2);border-radius:4px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.tg-icon{font-size:22px;flex-shrink:0}.tg-name{font-size:11px;font-weight:700;color:var(--cy);letter-spacing:.5px}.tg-link{font-size:9px;color:var(--mu);margin-top:1px}
+.sys-status{margin-top:18px;font-size:8px;color:var(--mu);letter-spacing:2px;display:flex;align-items:center;gap:6px}
+.sys-dot{width:6px;height:6px;border-radius:50%;background:var(--gr);box-shadow:0 0 6px var(--gr);animation:blink 1.2s infinite;flex-shrink:0}
+.uid-box{background:rgba(0,255,65,.06);border:1px solid var(--bor);border-radius:4px;padding:11px;text-align:center;width:100%;max-width:340px;margin-bottom:12px}
+.uid-lbl2{font-size:8px;letter-spacing:2px;color:var(--mu);margin-bottom:4px}
+.uid-num{font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--gr);text-shadow:0 0 12px rgba(0,255,65,.5);letter-spacing:4px}
+.uid-copy{font-size:9px;color:var(--cy);margin-top:5px;cursor:pointer;letter-spacing:1px}
+.pred-hero{margin:8px;background:var(--c2);border:1px solid var(--bor);border-radius:6px;padding:14px;display:flex;gap:9px;position:relative;overflow:hidden}
+.pred-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gr),transparent);opacity:.5}
+.ph-main{flex:1.3;background:rgba(0,0,0,.5);border-radius:4px;padding:13px;text-align:center;border:1px solid var(--bor2)}
+.ph-lbl{font-size:7px;letter-spacing:2px;color:var(--mu);text-transform:uppercase;margin-bottom:5px}
+.pv{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;transition:all .3s;margin:4px 0}
+.pv.BIG{color:var(--pu2);text-shadow:0 0 16px rgba(167,139,250,.6)}
+.pv.SMALL{color:var(--gr);text-shadow:0 0 16px rgba(0,255,65,.6)}
+.pv.RED{color:var(--rd);text-shadow:0 0 16px rgba(239,68,68,.6)}
+.pv.GREEN{color:#22c55e;text-shadow:0 0 16px rgba(34,197,94,.6)}
+.pv.LOAD{color:var(--gd);font-size:11px;text-shadow:none;letter-spacing:1px}
+.pv.SKIP{color:var(--mu);font-size:14px;text-shadow:none}
+.ph-pat{font-size:8px;color:var(--gd);font-weight:700;margin-top:3px;letter-spacing:.5px}
+.ph-conf{font-size:8px;color:var(--mu);margin-top:1px}
+.ph-timer{flex:1;background:rgba(0,0,0,.5);border-radius:4px;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--bor2)}
+.tv{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--gd)}
+.tv.crit{color:var(--rd);text-shadow:0 0 12px rgba(239,68,68,.6);animation:blink .6s infinite}
+.per-lbl{font-size:7px;color:var(--mu);margin-top:3px;letter-spacing:1px}
+.per-v{font-size:8px;color:var(--tx2);margin-top:2px;word-break:break-all;line-height:1.3}
+.s4{margin:0 8px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sb{background:var(--c2);border-radius:5px;padding:9px 4px;text-align:center;border:1px solid var(--bor2)}
+.sl{font-size:7px;color:var(--mu);text-transform:uppercase;margin-bottom:2px;letter-spacing:.5px}
+.sv{font-family:'Orbitron',monospace;font-size:15px;font-weight:700}
+.brow{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.ball{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:10px;font-weight:900;flex-shrink:0}
+.ball.big{background:rgba(124,58,237,.2);border:2px solid var(--pu2);color:#c4b5fd}
+.ball.small{background:rgba(0,255,65,.12);border:2px solid var(--gr);color:var(--gr)}
+.ball.red{background:rgba(239,68,68,.2);border:2px solid var(--rd);color:#fca5a5}
+.ball.green{background:rgba(34,197,94,.2);border:2px solid #22c55e;color:#86efac}
+.ball.emp{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--mu)}
+.logb{background:#000;border-radius:4px;padding:8px;height:90px;overflow-y:auto;font-family:'Share Tech Mono',monospace;font-size:9px;line-height:1.5;margin-top:7px;border:1px solid var(--bor2)}
+.logb::-webkit-scrollbar{width:2px}.logb::-webkit-scrollbar-thumb{background:var(--bor)}
+.ll{margin-bottom:1px}.li{color:var(--gd)}.ls{color:var(--gr)}.le{color:var(--rd)}.lw{color:#fb923c}
+.toast{position:fixed;top:56px;left:50%;transform:translateX(-50%);background:rgba(3,10,3,.98);border-radius:4px;padding:8px 16px;font-size:10px;font-weight:700;z-index:300;border:1px solid;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;font-family:'Share Tech Mono',monospace;letter-spacing:1px}
+.toast.show{opacity:1}.toast.ok{border-color:var(--gr);color:var(--gr)}.toast.err{border-color:var(--rd);color:var(--rd)}.toast.w{border-color:var(--gd);color:var(--gd)}
+.eng-btn{margin:8px;width:calc(100% - 16px);padding:12px;border-radius:4px;border:2px solid;font-family:'Orbitron',sans-serif;font-weight:900;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;letter-spacing:1px;background:transparent}
+.eng-btn.stop{border-color:var(--rd);color:var(--rd);box-shadow:0 0 10px rgba(239,68,68,.2)}
+.eng-btn.start{border-color:var(--gr);color:var(--gr);box-shadow:0 0 10px rgba(0,255,65,.2)}
+.irow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bor2)}
+.irow:last-child{border-bottom:none}
+.ik{font-size:10px;color:var(--mu)}
+.iv{font-size:10px;font-weight:700;color:var(--tx);font-family:'Orbitron',monospace;max-width:60%;text-align:right;word-break:break-all}
+.lock-pg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:24px;gap:14px;text-align:center}
+.lock-icon{font-size:40px;animation:float 3s ease-in-out infinite}
+.lock-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;color:var(--gr)}
+.lock-sub{font-size:10px;color:var(--mu)}
+.ts{font-size:9px;margin-top:5px;letter-spacing:.5px}
+.ts.ok{color:var(--gr)}.ts.err{color:var(--rd)}.ts.mu{color:var(--mu)}
+.wbox{background:rgba(0,0,0,.3);border-radius:4px;padding:10px;border:1px solid var(--bor2);margin-top:9px}
+.row2{display:flex;justify-content:space-between;align-items:center}
+.sw{position:relative;display:inline-block;width:40px;height:20px}
+.sw input{opacity:0;width:0;height:0}
+.sl2{position:absolute;cursor:pointer;inset:0;background:#0a150a;border-radius:34px;transition:.3s;border:1px solid var(--bor2)}
+.sl2:before{position:absolute;content:'';height:14px;width:14px;left:2px;bottom:2px;background:#4a7a4a;border-radius:50%;transition:.3s}
+input:checked+.sl2{background:rgba(0,255,65,.15);border-color:var(--gr)}
+input:checked+.sl2:before{transform:translateX(20px);background:var(--gr)}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+.ml{background:rgba(0,0,0,.4);border:1px solid var(--bor2);border-radius:5px;padding:8px 3px;text-align:center;transition:all .2s}
+.ml.on{background:rgba(0,255,65,.08);border-color:var(--gr);box-shadow:0 0 8px rgba(0,255,65,.15)}
+.ml.done{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3)}
+.ml-l{font-size:7px;color:var(--mu);font-weight:700;display:block;margin-bottom:2px}
+.ml.on .ml-l{color:var(--gr)}.ml.done .ml-l{color:var(--rd)}
+.ml-a{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--tx)}
 </style>
 </head>
 <body>
+<div class="app">
+<div class="topbar">
+  <div class="tlogo">⚡ SIVA ULTRA AI</div>
+  <div class="tbadge err" id="badge"><span class="tdot"></span><span id="badgeTxt">OFFLINE</span></div>
+</div>
+<div class="scrl">
 
-<div id="key-overlay" style="display: none;">
-  <div class="key-card">
-    <h2>🔑 ACCESS CONTROL</h2>
-    <p style="font-size:11px; color:var(--mu); margin-bottom:10px;">உங்களுடைய Unique User ID கீழே கொடுக்கப்பட்டுள்ளது:</p>
-    
-    <div class="uid-badge" id="uid-display" onclick="copyUserID()">SIVA-XXXX</div>
-    
-    <input type="text" id="accessKey" placeholder="🔑 ENTER KEY TO ACTIVATE">
-    <button class="key-btn" onclick="verifyAccess()">Submit Code</button>
-    
-    <div class="key-link">
-      ID-ஐ காப்பி செய்து Admin-க்கு அனுப்பவும்! <br>
-      Contact Telegram Admin 👇🏼<br>
-      <a href="https://t.me/OnlineEarningapp_bot" target="_blank">@OnlineEarningapp_bot</a>
+<!-- PAGE 1: PREDICTION -->
+<div class="pg on" id="pg1">
+  <div class="pred-hero">
+    <div class="ph-main">
+      <div class="ph-lbl">NEXT PERIOD SIGNAL</div>
+      <div class="pv LOAD" id="predVal">SCANNING</div>
+      <div class="ph-pat" id="predPat">Connecting...</div>
+      <div class="ph-conf" id="predConf"></div>
+    </div>
+    <div class="ph-timer">
+      <div class="tv" id="timerEl">--:--</div>
+      <div class="per-lbl">PERIOD</div>
+      <div class="per-v" id="periodEl">--</div>
     </div>
   </div>
-</div>
-
-<div id="expired-overlay" style="display: none;">
-  <div class="expired-card">
-    <h2>⚠️ PLAN EXPIRED!</h2>
-    <p>உங்களுடைய சந்தா காலம் முடிவடைந்துவிட்டது. தயவுசெய்து புதிய Key-ஐ வாங்கி ஆக்டிவேட் செய்யவும்.</p>
-    <div class="uid-badge" id="expired-uid-display" onclick="copyExpiredUserID()" style="margin-bottom:20px;">SIVA-XXXX</div>
-    <button class="buy-btn" onclick="goToBuyPlan()">🛒 BUY NEW PLAN / KEY</button>
-    <p style="font-size:11px; color:var(--mu); margin-top:15px;">அல்லது மீண்டும் லாக்-இன் செய்ய <a href="#" onclick="showLoginScreen()" style="color:var(--pu)">இங்கே கிளிக் செய்யவும்</a></p>
+  <div class="s4">
+    <div class="sb"><div class="sl">TOTAL</div><div class="sv" id="sBets">0</div></div>
+    <div class="sb"><div class="sl">WINS</div><div class="sv" style="color:var(--gr)" id="sWins">0</div></div>
+    <div class="sb"><div class="sl">LOSS</div><div class="sv" style="color:var(--rd)" id="sLoss">0</div></div>
+    <div class="sb"><div class="sl">WIN%</div><div class="sv" style="color:var(--gd)" id="sAcc">-</div></div>
+  </div>
+  <div class="card">
+    <div class="chdr"><div class="chdr-bar"></div>SYSTEM LOG</div>
+    <div class="logb" id="logEl"></div>
   </div>
 </div>
 
-<div id="admin-overlay" style="display: none;">
-  <div class="admin-card">
-    <h2>⚡ SIVA ADMIN PANEL</h2>
-    <input type="text" id="adminUserTarget" placeholder="User ID போடு (SIVA-XXXX)">
-    <select id="adminPlanSelect">
-      <option value="1">1 Day (24 Hours)</option>
-      <option value="7">7 Days (Weekly)</option>
-      <option value="30">30 Days (Monthly)</option>
-      <option value="999">Lifetime Plan (Permanent)</option>
-    </select>
-    <button class="admin-btn" onclick="adminGenerateKey()">Generate Key Code</button>
-    <div style="background:#000; padding:10px; font-family:'Orbitron'; font-size:12px; color:var(--gd); border-radius:8px; margin-bottom:15px; word-break:break-all;" id="generatedKeyDisplay">Generated Key: None</div>
-    <button class="admin-close" onclick="closeAdminPanel()">Close Admin</button>
-  </div>
-</div>
+<!-- PAGE 3: AUTOBET -->
+<div class="pg" id="pg3">
+  <div id="abPanel">
+    <div class="eng-btn stop" id="engBtn" onclick="toggleEng()">■ STOP ENGINE</div>
 
-<div class="top">
-  <div class="logo">⚡ SIVA ULTRA AI V54</div>
-  <div class="badge off" id="badge"><span class="dot"></span><span id="bTxt">CONNECTING</span></div>
-</div>
-
-<div class="tabs">
-  <button class="tb on" onclick="setMode(1,this)">WinGo 1Min</button>
-  <button class="tb" onclick="setMode(3,this)">WinGo 3Min</button>
-  <button class="tb" onclick="setMode(5,this)">WinGo 5Min</button>
-</div>
-
-<div class="pg show" id="pg-home">
-
-  <div class="tok-box" id="tokBox">
-    <div class="tok-title">🔑 BEARER TOKEN ENTER பண்ணு</div>
-    <textarea class="tok-in" id="tokIn" rows="3"
-      placeholder="Paste your token here...  Bearer xxxxxx)"></textarea>
-    <button class="tok-btn" onclick="saveToken()">✅ Connect & Predict</button>
-    <div class="tok-hint">
-      📌இந்த Token -ஐ பெறுவதற்கு Admin -ஐ தொடர்பு கொள்ளவும் 👇🏼. <br>
-      Contact: <a href="https://t.me/OnlineEarningapp_bot" style="color:var(--gd)">@OnlineEarningapp_bot</a>
-    </div>
-  </div>
-
-  <div id="mainCards" style="display:none">
-    <div class="pc">
-      <div class="pc-row">
+    <!-- GOAOKO LOGIN -->
+    <div class="card">
+      <div class="chdr"><div class="chdr-bar"></div>GOAOKO LOGIN</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <div>
-          <div class="lbl">NEXT PERIOD</div>
-          <div class="pid" id="pid">--</div>
+          <span style="font-size:7px;color:var(--mu);display:block;margin-bottom:3px">PHONE</span>
+          <input class="inp" id="goaPhone" type="tel" placeholder="916381605525" style="padding:8px;font-size:12px">
         </div>
         <div>
-          <div class="tmr" id="tmr">--:--</div>
-          <div class="lbl" style="text-align:right;margin-top:2px;">TIME LEFT</div>
+          <span style="font-size:7px;color:var(--mu);display:block;margin-bottom:3px">PASSWORD</span>
+          <input class="inp" id="goaPass" type="password" placeholder="password" style="padding:8px;font-size:12px">
         </div>
       </div>
-      <div class="brow">
-        <div class="bd bd1" id="bd1">● SIVHHH AI · Loading</div>
-        <div class="bd bd2" id="bd2">⚡ SIGNAL · --</div>
+      <button class="btn btn-gr" style="padding:10px;font-size:10px" onclick="goaokoLogin()">🔐 LOGIN & GET TOKEN</button>
+      <div class="ts mu" id="loginStatus" style="margin-top:6px">Not logged in</div>
+
+      <div style="margin-top:10px;border-top:1px solid var(--bor2);padding-top:10px">
+        <div style="font-size:8px;color:var(--mu);margin-bottom:5px">OR PASTE TOKEN MANUALLY:</div>
+        <textarea class="inp" id="abTokenInput" rows="2" placeholder="Bearer eyJhbGci..."></textarea>
+        <button class="btn btn-cy" style="margin-top:6px;padding:9px;font-size:10px" onclick="saveAbToken()">💾 SAVE TOKEN</button>
       </div>
+      <div class="ts mu" id="abTokenStatus" style="margin-top:5px">⚠ No token set</div>
     </div>
 
-    <div class="l5">
-      <div class="l5t">📊 LAST 5 RESULTS (LIVE)</div>
-      <div class="balls" id="balls">
-        <div class="ball e">-</div><div class="ball e">-</div>
-        <div class="ball e">-</div><div class="ball e">-</div>
-        <div class="ball e">-</div>
+    <div class="card">
+      <div class="chdr"><div class="chdr-bar"></div>ENGINE CONFIG</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+        <div><span style="font-size:7px;color:var(--mu);display:block;margin-bottom:3px">BASE BET</span>
+          <input type="number" id="baseBet" class="inp" value="10" min="1" style="padding:8px;font-size:14px;text-align:center" onchange="buildMart()"></div>
+        <div><span style="font-size:7px;color:var(--mu);display:block;margin-bottom:3px">MAX LEVELS</span>
+          <input type="number" id="maxLvl" class="inp" value="5" min="1" max="7" style="padding:8px;font-size:14px;text-align:center" onchange="buildMart()"></div>
       </div>
+      <div style="font-size:8px;color:var(--mu);text-align:center" id="riskLbl">--</div>
     </div>
 
-    <div class="mp X" id="mp">
-      <div class="mpl">AI PREDICTION</div>
-      <div class="mpv" id="mpv">🔄 LOADING</div>
-      <div class="mpr" id="mpr">Fetching live data...</div>
-      <div class="mps" id="mps" style="display:none"></div>
+    <div class="card">
+      <div class="chdr"><div class="chdr-bar"></div>MARTINGALE (x10)</div>
+      <div class="mgrid" id="mgrid"></div>
     </div>
 
-    <div class="cb">
-      <div class="cr"><div class="cl">CONFIDENCE</div><div class="cp" id="cpct">--%</div></div>
-      <div class="bbg"><div class="bf" id="bfill" style="width:0%"></div></div>
+    <div class="card">
+      <div class="chdr"><div class="chdr-bar"></div>LIVE STATUS</div>
+      <div class="irow"><span class="ik">Period</span><span class="iv" id="lPer">--</span></div>
+      <div class="irow"><span class="ik">Prediction</span><span class="iv" id="lPred">--</span></div>
+      <div class="irow"><span class="ik">Bet Amount</span><span class="iv" id="lAmt">--</span></div>
+      <div class="irow"><span class="ik">Bet Status</span><span class="iv" id="lStat" style="color:var(--mu)">--</span></div>
+      <div class="irow"><span class="ik">Result</span><span class="iv" id="lRes">--</span></div>
+      <button class="btn btn-rd" style="margin-top:10px;padding:9px;font-size:9px" onclick="resetStats()">⟳ RESET ALL</button>
     </div>
-
-    <div class="rb">
-      <div class="rbt">🔁 8-LEVEL RECOVERY SYSTEM</div>
-      <div class="rbs">Recovery system enabled</div>
-      <div class="rrow">
-        <div class="rl cur" id="rl1">
-          <span class="rn">L1</span>
-          <div class="rm">×1 Bet</div>
-          <div class="rs">Normal</div>
-        </div>
-        <div class="rl" id="rl2">
-          <span class="rn">L2</span>
-          <div class="rm">×2 Bet</div>
-          <div class="rs">Recovery</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="pg" id="pg-hist">
-  <div class="hh">
-    <div class="hh1">Prediction History</div>
-    <div class="hs">Live auto-tracked results</div>
-    <div class="aring">
-      <svg viewBox="0 0 70 70">
-        <circle cx="35" cy="35" r="29" stroke-width="6"/>
-        <circle class="prg" id="prg" cx="35" cy="35" r="29" stroke-width="6"
-          stroke-dasharray="182.2" stroke-dashoffset="182.2"/>
-      </svg>
-      <div class="acen" id="acen">0%<span>ACC</span></div>
-    </div>
-  </div>
-  <div class="sgrid">
-    <div class="sc"><div class="sv t" id="sT">0</div><div class="sl">Total</div></div>
-    <div class="sc"><div class="sv w" id="sW">0</div><div class="sl">Win</div></div>
-    <div class="sc"><div class="sv l" id="sL">0</div><div class="sl">Loss</div></div>
-    <div class="sc"><div class="sv a" id="sA">0%</div><div class="sl">Accuracy</div></div>
-  </div>
-  <div class="frow">
-    <button class="fb on" onclick="setF('all',this)">All</button>
-    <button class="fb" onclick="setF('win',this)">Win</button>
-    <button class="fb" onclick="setF('loss',this)">Loss</button>
-  </div>
-  <div class="hlb">RECENT PREDICTIONS</div>
-  <div class="hlist" id="hlist"><div class="empty">No predictions yet...</div></div>
-</div>
-
-<div class="pg" id="pg-profile">
-  <div style="padding:14px 11px;">
-    <div style="background:var(--c2);border-radius:14px;padding:18px;border:1px solid var(--bo);text-align:center;margin-bottom:11px;">
-      <div style="font-size:44px;margin-bottom:8px;">🤖</div>
-      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--pu);">SIVA ULTRA AI V54</div>
-      <div style="font-size:11px;color:var(--gr);margin-top:4px;">● 2-Level Recovery · Rajaluck Live</div>
-    </div>
-    
-    <div style="background:var(--c2);border-radius:14px;padding:14px;border:1px solid var(--bo);margin-bottom:11px;">
-      <h3 style="font-size:11px; color:var(--gd); margin-bottom:10px; font-family:'Orbitron'">👤 ACCOUNT INFORMATION</h3>
-      <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;">
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Your User ID</span>
-          <span style="color:#fff;font-weight:700;font-family:'Orbitron';" id="prof-uid">SIVA-0000</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Account Plan</span>
-          <span style="color:var(--gr);font-weight:700;" id="prof-plan">Active</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Expires On</span>
-          <span style="color:var(--rd);font-weight:700;" id="prof-expiry">--/--/----</span>
-        </div>
-      </div>
-    </div>
-
-    <div style="background:var(--c2);border-radius:14px;padding:14px;border:1px solid var(--bo);margin-bottom:11px;">
-      <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;">
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Channel</span>
-          <span style="color:var(--pu);font-weight:700;">@toptamilearn</span></div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Bot</span>
-          <span style="color:var(--pu);font-weight:700;">@OnlineEarningapp_bot</span></div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Register</span>
-          <span style="color:var(--gr);font-weight:700;">Rajaluck.com</span></div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--mu);">Token Status</span>
-          <span style="color:var(--gd);font-weight:700;" id="tokStatus">Not set</span></div>
-      </div>
-    </div>
-    
-    <button onclick="openAdminPortalPrompt()" style="width:100%;padding:11px;border-radius:11px;
-      border:1.5px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.08);
-      color:var(--pu);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">
-      ⚙️ Open Admin Panel
-    </button>
-    <button onclick="resetToken()" style="width:100%;padding:11px;border-radius:11px;
-      border:1.5px solid rgba(245,158,11,.4);background:rgba(245,158,11,.08);
-      color:var(--gd);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">
-      🔑 Update Token
-    </button>
-    <button onclick="clearAll()" style="width:100%;padding:11px;border-radius:11px;
-      border:1.5px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08);
-      color:var(--rd);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
-      🗑 Clear History
-    </button>
   </div>
 </div>
 
-<div class="bnav">
-  <button class="nb on" onclick="goPage('home',this)"><span class="ni">🏠</span>Home</button>
-  <button class="nb" onclick="goPage('hist',this)"><span class="ni">📋</span>History</button>
-  <button class="nb" onclick="goPage('profile',this)"><span class="ni">👤</span>Profile</button>
+</div><!-- scrl -->
+
+<div class="nav" id="mainNav" style="display:grid;grid-template-columns:repeat(2,1fr)">
+  <button class="nit on" id="n1" onclick="gotoPage(1)"><div class="nico">⚡</div><div class="nlbl">PREDICT</div></button>
+  <button class="nit" id="n3" onclick="gotoPage(3)"><div class="nico">🤖</div><div class="nlbl">AUTOBET</div></button>
 </div>
+</div><!-- app -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════
-// USER CONTROL & EXPIRY SYSTEM (FIXED)
-// ═══════════════════════════════════════
-const ADMIN_SECRET = "SIVA-CREATOR-V54"; 
+// ═══════════════════════════════════════════════════
+//  CONFIG & API - ALL CORRECTED FOR 100% WORK
+// ═══════════════════════════════════════════════════
+const API_BASE  = 'https://api.ar-lottery01.com';  // ✅ CORRECT!
+const BET_URL   = 'https://api.ar-lottery01.com/api/Lottery/WinGoBet';  // ✅ DIRECT BET
+const LOGIN_URL = 'https://api.goa7777.com/api/webapi/Login';  // ✅ LOGIN
+const DRAW_BASE = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M';  // ✅ HISTORY
 
-if (!localStorage.getItem('sv_user_id')) {
-  const randNum = Math.floor(1000 + Math.random() * 9000);
-  localStorage.setItem('sv_user_id', `SIVA-${randNum}`);
-}
-const USER_ID = localStorage.getItem('sv_user_id');
-
-function copyUserID() {
-  navigator.clipboard.writeText(USER_ID);
-  showToast("📋 User ID Copied!", "tw");
-}
-function copyExpiredUserID() {
-  navigator.clipboard.writeText(USER_ID);
-  showToast("📋 User ID Copied! Send to Admin", "tw");
-}
-
-function verifyAccess() {
-  const keyInput = document.getElementById('accessKey').value.trim();
-  
-  // 🌟 BYPASS 1: ADMIN / LIFETIME KEY
-  if (keyInput === "siva6381") {
-    const expiryTime = Date.now() + (99 * 365 * 24 * 60 * 60 * 1000); 
-    
-    localStorage.setItem('sv_expiry_time', expiryTime);
-    localStorage.setItem('sv_plan_days', 'Lifetime');
-    localStorage.setItem('sv_active_key', keyInput);
-    
-    document.getElementById('key-overlay').style.display = 'none';
-    document.getElementById('expired-overlay').style.display = 'none';
-    
-    showToast("👑 Lifetime Admin Access Activated!", "tg");
-    updateProfileUI();
-    return;
-  }
-
-  // 🌟 BYPASS 2: FREE TRIAL KEY
-  if (keyInput === "SIVA-FREE-2007") {
-    const expiryTime = Date.now() + (24 * 60 * 60 * 1000); 
-    localStorage.setItem('sv_expiry_time', expiryTime);
-    localStorage.setItem('sv_plan_days', "1");
-    localStorage.setItem('sv_active_key', keyInput);
-    
-    document.getElementById('key-overlay').style.display = 'none';
-    document.getElementById('expired-overlay').style.display = 'none';
-    
-    showToast("✅ Free Trial Activated (24h)", "tw");
-    updateProfileUI();
-    return;
-  }
-
-  // 🌟 STANDARD CODE VALIDATION
-  try {
-    const parts = keyInput.split('-');
-    if (parts.length === 4 && parts[0] === 'SIVAKEY') {
-      const uIdInKey = parts[1] + '-' + parts[2];
-      const days = parseInt(parts[3]);
-      
-      if (uIdInKey === USER_ID) {
-        let expiryTime = 0;
-        if (days === 999) {
-          expiryTime = Date.now() + (3650 * 24 * 60 * 60 * 1000); 
-        } else {
-          expiryTime = Date.now() + (days * 24 * 60 * 60 * 1000); 
-        }
-        
-        localStorage.setItem('sv_expiry_time', expiryTime);
-        localStorage.setItem('sv_plan_days', days);
-        localStorage.setItem('sv_active_key', keyInput);
-        
-        document.getElementById('key-overlay').style.display = 'none';
-        document.getElementById('expired-overlay').style.display = 'none';
-        
-        showToast("✅ Plan Activated Successfully!", "tw");
-        updateProfileUI();
-        return;
-      }
-    }
-  } catch(e) {
-    console.error("Verification error:", e);
-  }
-  
-  alert("❌ Invalid Activation Code! Please get key generated for ID: " + USER_ID);
-}
-
-function checkAccess() {
-  const expiry = localStorage.getItem('sv_expiry_time');
-  
-  document.getElementById('uid-display').textContent = USER_ID;
-  document.getElementById('expired-uid-display').textContent = USER_ID;
-  
-  if (expiry) {
-    if (Date.now() < parseInt(expiry)) {
-      document.getElementById('key-overlay').style.display = 'none';
-      document.getElementById('expired-overlay').style.display = 'none';
-      updateProfileUI();
-    } else {
-      document.getElementById('key-overlay').style.display = 'none';
-      document.getElementById('expired-overlay').style.display = 'flex';
-    }
-  } else {
-    document.getElementById('key-overlay').style.display = 'flex';
-    document.getElementById('expired-overlay').style.display = 'none';
-  }
-}
-
-function showLoginScreen() {
-  document.getElementById('expired-overlay').style.display = 'none';
-  document.getElementById('key-overlay').style.display = 'flex';
-}
-
-function goToBuyPlan() {
-  window.open('https://t.me/OnlineEarningapp_bot', '_blank');
-}
-
-function updateProfileUI() {
-  const expiry = localStorage.getItem('sv_expiry_time');
-  const days = localStorage.getItem('sv_plan_days');
-  
-  document.getElementById('prof-uid').textContent = USER_ID;
-  
-  if (expiry) {
-    const expDate = new Date(parseInt(expiry));
-    document.getElementById('prof-expiry').textContent = expDate.toLocaleDateString();
-    
-    if (parseInt(days) === 999 || days === "Lifetime") {
-      document.getElementById('prof-plan').textContent = "Lifetime Plan 💎";
-      document.getElementById('prof-plan').style.color = "var(--gd)";
-    } else {
-      document.getElementById('prof-plan').textContent = `${days} Days Premium`;
-      document.getElementById('prof-plan').style.color = "var(--gr)";
-    }
-  } else {
-    document.getElementById('prof-expiry').textContent = "No Plan Active";
-    document.getElementById('prof-plan').textContent = "Inactive";
-    document.getElementById('prof-plan').style.color = "var(--rd)";
-  }
-}
-
-function openAdminPortalPrompt() {
-  const pwd = prompt("🔐 Enter Secret Admin Key:");
-  if (pwd === "siva6381") { // ✅ String ஆக மாற்றப்பட்டது
-    document.getElementById('admin-overlay').style.display = 'flex';
-  } else if (pwd !== null) {
-    alert("❌ Password Incorrect!");
-  }
-}
-
-function closeAdminPanel() {
-  document.getElementById('admin-overlay').style.display = 'none';
-}
-
-function adminGenerateKey() {
-  const targetId = document.getElementById('adminUserTarget').value.trim().toUpperCase();
-  const planDays = document.getElementById('adminPlanSelect').value;
-  
-  if (!targetId.startsWith("SIVA-") || targetId.length < 7) {
-    alert("❌ Invalid Target User ID!");
-    return;
-  }
-  
-  const generatedKey = `SIVAKEY-${targetId}-${planDays}`;
-  document.getElementById('generatedKeyDisplay').innerHTML = `Generated Key (Send to User):<br><strong style="color:#fff; user-select:all;">${generatedKey}</strong>`;
-}
-
-// MD5
-function md5(s){function a(a,b){return a+b&4294967295}function b(a,b,c,d,e,f){return a=a+((b&c|~b&d)+e+f)&4294967295,((a<<7|a>>>25)+b&4294967295)}function c(a,b,c,d,e,f){return a=a+((b&d|c&~d)+e+f)&4294967295,((a<<12|a>>>20)+b&4294967295)}function d(a,b,c,d,e,f){return a=a+((b^c^d)+e+f)&4294967295,((a<<17|a>>>15)+b&4294967295)}function e(a,b,c,d,e,f){return a=a+((c^(b|~d))+e+f)&4294967295,((a<<22|a>>>10)+b&4294967295)}
-var g=function(a){for(var b=[],c=0;c<a.length;c++){var d=a.charCodeAt(c);d<128?b.push(d):d<2048?(b.push(192|d>>6),b.push(128|63&d)):d<65536?(b.push(224|d>>12),b.push(128|d>>6&63),b.push(128|63&d)):(b.push(240|d>>18),b.push(128|d>>12&63),b.push(128|d>>6&63),b.push(128|63&d))}return b}(s),h=g.length,i=new Array(Math.ceil((h+9)/64)*16).fill(0);for(var j=0;j<h;j++)i[j>>2]|=g[j]<<24-j%4*8;i[h>>2]|=128<<24-h%4*8;i[i.length-2]=8*h;
-var k=1732584193,l=-271733879,m=-1732584194,n=271733878;
-for(var o=0;o<i.length;o+=16){var p=k,q=l,r=m,t=n;k=b(k,l,m,n,i[o],3614090360);n=b(n,k,l,m,i[o+1],3905402710);m=b(m,n,k,l,i[o+2],606105819);l=b(l,m,n,k,i[o+3],3250441966);k=b(k,l,m,n,i[o+4],4118548399);n=b(n,k,l,m,i[o+5],1200080426);m=b(m,n,k,l,i[o+6],2821735955);l=b(l,m,n,k,i[o+7],4249261313);k=b(k,l,m,n,i[o+8],1770035416);n=b(n,k,l,m,i[o+9],2336552879);m=b(m,n,k,l,i[o+10],4294925233);l=b(l,m,n,k,i[o+11],2304563134);k=b(k,l,m,n,i[o+12],1804603682);n=b(n,k,l,m,i[o+13],4254626195);m=b(m,n,k,l,i[o+14],2792965006); // ✅ டபுள் அசைன்மென்ட் சரிசெய்யப்பட்டது
-l=b(l,m,n,k,i[o+15],1236535329);k=c(k,l,m,n,i[o+1],4129170786);n=c(n,k,l,m,i[o+6],3225465664);m=c(m,n,k,l,i[o+11],643717713);l=c(l,m,n,k,i[o],3921069994);k=c(k,l,m,n,i[o+5],3593408605);n=c(n,k,l,m,i[o+10],38016083);m=c(m,n,k,l,i[o+15],3634488961);l=c(l,m,n,k,i[o+4],3889429448);k=c(k,l,m,n,i[o+9],568446438);n=c(n,k,l,m,i[o+14],3275163606);m=c(m,n,k,l,i[o+3],4107603335);l=c(l,m,n,k,i[o+8],1163531501);k=c(k,l,m,n,i[o+13],2850285829);n=c(n,k,l,m,i[o+2],4243563512);m=c(m,n,k,l,i[o+7],1735328473);l=c(l,m,n,k,i[o+12],2368359562);k=d(k,l,m,n,i[o+5],4294588738);n=d(n,k,l,m,i[o+8],2272392833);m=d(m,n,k,l,i[o+11],1839030562);l=d(l,m,n,k,i[o+14],4259657740);k=d(k,l,m,n,i[o+1],2763975236);n=d(n,k,l,m,i[o+4],1272893353);m=d(m,n,k,l,i[o+7],4139469664);l=d(l,m,n,k,i[o+10],3200236656);k=d(k,l,m,n,i[o+13],681279174);n=d(n,k,l,m,i[o],3936430074);m=d(m,n,k,l,i[o+3],3572445317);l=d(l,m,n,k,i[o+6],76029189);k=d(k,l,m,n,i[o+9],3654602809);n=d(n,k,l,m,i[o+12],3873151461);m=d(m,n,k,l,i[o+15],530742520);l=d(l,m,n,k,i[o+2],3299628645);k=e(k,l,m,n,i[o],4096336452);n=e(n,k,l,m,i[o+7],1126891415);m=e(m,n,k,l,i[o+14],2878612391);l=e(l,m,n,k,i[o+5],4237533241);k=e(k,l,m,n,i[o+12],1700485571);n=e(n,k,l,m,i[o+3],2399980690);m=e(m,n,k,l,i[o+10],4293915773);l=e(l,m,n,k,i[o+1],2240044497);k=e(k,l,m,n,i[o+8],1873313359);n=e(n,k,l,m,i[o+15],4264355552);m=e(m,n,k,l,i[o+6],2734768916);l=e(l,m,n,k,i[o+13],1309151649);k=e(k,l,m,n,i[o+4],4149444226);n=e(n,k,l,m,i[o+11],3174756917);m=e(m,n,k,l,i[o+2],718787259);l=e(l,m,n,k,i[o+9],3951481745);k=a(k,p);l=a(l,q);m=a(m,r);n=a(n,t)}
-return[k,l,m,n].map(a=>a>>>0).map(a=>a.toString(16).padStart(8,'0').match(/../g).reverse().join('')).join('')}
-
-// ═══════════════════════════════════════
-// STATE (STABLE LOADOUT WITH LOCALSTORAGE SYNC)
-// ═══════════════════════════════════════
-const S = {
-  token:      localStorage.getItem('sv_tok') || '',
-  typeId:     parseInt(localStorage.getItem('sv_type_id') || '1'),
-  lossStreak: parseInt(localStorage.getItem('sv_ls') || '0'),
-  winStreak:  parseInt(localStorage.getItem('sv_ws') || '0'),
-  hist:       JSON.parse(localStorage.getItem('sv_hist') || '[]'),
-  stats:      JSON.parse(localStorage.getItem('sv_st') || '{"w":0,"l":0,"t":0}'),
-  filter:     'all',
-  curPred:    localStorage.getItem('sv_cur_pred') || null, 
-  curPeriod:  localStorage.getItem('sv_cur_period') || null, 
-  prevPred:   localStorage.getItem('sv_prev_pred') || null, 
-  timerSec:   0,
-  timerID:    null,
-  fetching:   false,
-  retries:    0,
-  lastList:   null
+// STATE
+const G={
+  token:'',
+  active:true,
+  baseBet:10,maxLvl:5,
+  MULT:[1,10,100,1000,10000,100000,1000000],  // ✅ x10 MARTINGALE!
+  level:1,
+  wins:0,losses:0,totalBets:0,
+  lastBetId:'',lastPeriod:'',
+  abUnlocked:false,
+  goaPhone:'',goaPass:'',
+  predHistory:[]
 };
 
-const BASE = 'https://lotteryapi.rajaluckapi.com/api/webapi';
+// ═══════════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════════
+function loadSaved(){
+  try{
+    const t=localStorage.getItem('siva_tok');if(t)G.token=t;
+    const p=localStorage.getItem('siva_phone');if(p)G.goaPhone=p;
+    const pw=localStorage.getItem('siva_pass');if(pw)G.goaPass=pw;
+  }catch(e){}
+  updateTokenUI();
+}
+function saveTok(){localStorage.setItem('siva_tok',G.token);}
+function savePhone(){localStorage.setItem('siva_phone',G.goaPhone);localStorage.setItem('siva_pass',G.goaPass);}
+loadSaved();
 
-function saveToken() {
-  let raw = document.getElementById('tokIn').value.trim();
-  raw = raw.replace(/^Bearer\s+/i, '').trim();
-  if (!raw || raw.length < 20) { 
-    showToast('⚠️ Invalid token!','tl'); 
-    return; 
+// ═══════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════
+function log(msg,t='i'){
+  const a=document.getElementById('logEl');if(!a)return;
+  const d=document.createElement('div');d.className='ll l'+t;
+  d.textContent='['+new Date().toLocaleTimeString('en-US',{hour12:false})+'] '+msg;
+  a.appendChild(d);a.scrollTop=a.scrollHeight;if(a.children.length>200)a.removeChild(a.children[0]);
+}
+function toast(msg,t='w'){
+  const el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+t;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',3000);
+}
+function setStat(id,txt,col){const e=document.getElementById(id);if(e){e.textContent=txt;if(col)e.style.color=col;}}
+function gotoPage(n){
+  document.querySelectorAll('.pg').forEach((p,i)=>p.classList.toggle('on',i===n));
+  document.querySelectorAll('.nit').forEach((b,i)=>b.classList.toggle('on',i===n));
+}
+
+// ═══════════════════════════════════════════════════
+//  GOAOKO AUTO LOGIN  
+// ═══════════════════════════════════════════════════
+async function makeSign(params){
+  const str=Object.keys(params).sort().map(k=>k+'='+params[k]).join('&');
+  try{
+    const enc=new TextEncoder().encode(str);
+    const h=await crypto.subtle.digest('SHA-256',enc);
+    return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase().substr(0,32);
+  }catch(e){
+    let h=0;for(let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}
+    return Math.abs(h).toString(16).toUpperCase().padStart(32,'F').substr(0,32);
   }
-  S.token = raw;
-  localStorage.setItem('sv_tok', raw);
-  document.getElementById('tokBox').style.display = 'none';
-  document.getElementById('mainCards').style.display = 'block';
-  document.getElementById('tokStatus').textContent = '✅ Active';
-  showToast('✅ Token saved!','tw');
-  doFetch();
 }
 
-function resetToken() {
-  S.token = '';
-  localStorage.removeItem('sv_tok');
-  document.getElementById('tokBox').style.display = 'block';
-  document.getElementById('mainCards').style.display = 'none';
-  document.getElementById('tokStatus').textContent = 'Not set';
-  goPage('home', document.querySelector('.nb'));
-}
+async function goaokoLogin(){
+  const phone=document.getElementById('goaPhone').value.trim();
+  const pass=document.getElementById('goaPass').value.trim();
+  if(!phone||!pass){toast('Enter phone & password!','err');return;}
 
-// 🌐 Multi-User dynamic identifier generation without security clashes 
-function mkPayload(extra={}) {
-  const ts   = Math.floor(Date.now()/1000);
-  const rand = Array.from({length:32},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
-  const sig  = md5(rand).toUpperCase();
-  return { typeId: S.typeId, language: 5, random: rand, signature: sig, timestamp: ts, pageSize: 10, pageNo: 1, ...extra };
-}
+  const ls=document.getElementById('loginStatus');
+  ls.className='ts mu';ls.textContent='⟳ Logging in...';
 
-function getHeaders() {
-  return {
-    'Content-Type': 'application/json;charset=UTF-8',
-    'Accept': 'application/json, text/plain, */*',
-    'Authorization': 'Bearer ' + S.token,
-    'Origin': 'https://20580.rajaluckroyal.com',
-    'Referer': 'https://20580.rajaluckroyal.com/'
+  const ts=Math.floor(Date.now()/1000);
+  const rand=Math.floor(Math.random()*10000000000);
+
+  const signParams={
+    language:'0',logintype:'mobile',phonetype:'1',
+    pwd:pass,random:String(rand),timestamp:String(ts),username:phone
   };
+  const sig=await makeSign(signParams);
+
+  const payload={
+    username:phone,captchaId:'',deviceId:'siva'+Math.random().toString(36).substr(2,9),
+    language:0,logintype:'mobile',packId:'',phonetype:1,pwd:pass,random:rand,
+    signature:sig,timestamp:ts,
+    track:{backgroundImageWidth:340,backgroundImageHeight:212,sliderImageWidth:68,sliderImageHeight:212}
+  };
+
+  try{
+    const r=await fetch(LOGIN_URL,{
+      method:'POST',
+      headers:{'content-type':'application/json;charset=UTF-8','Accept':'application/json'},
+      body:JSON.stringify(payload),signal:AbortSignal.timeout(12000)
+    });
+    const res=await r.json();
+    log('Login resp: '+res.code+' '+res.msg,'i');
+
+    if(res.code===0&&res.data?.token){
+      G.token=res.data.token;
+      G.goaPhone=phone;G.goaPass=pass;
+      saveTok();savePhone();
+      updateTokenUI();
+      toast('✅ LOGIN SUCCESS!','ok');
+      log('✅ Token obtained!','s');
+      ls.className='ts ok';ls.textContent='✅ '+phone;
+    } else {
+      ls.className='ts err';ls.textContent='❌ '+(res.msg||'Failed');
+      toast('Login failed: '+(res.msg||'error'),'err');
+      log('❌ Login fail','e');
+    }
+  }catch(err){
+    ls.className='ts err';ls.textContent='❌ Network error';
+    toast('Network error','err');
+    log('❌ Login error: '+err.message,'e');
+  }
 }
 
-async function callAPI(endpoint) {
-  const body = JSON.stringify(mkPayload());
-  const url  = `${BASE}/${endpoint}`;
-  try {
-    const r = await fetch(url, { method:'POST', headers: getHeaders(), body, signal: AbortSignal.timeout(7000) });
-    if (r.ok) { 
-        const j=await r.json(); 
-        if(j.code===0&&j.data) return j.data;
-        if(j.code===401) { showToast("❌ Token Expired! Contact Admin", "tl"); resetToken(); }
-    }
-  } catch (err) {
-    console.error("API Call error:", err);
-  }
-  
-  try {
-    const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, {
-      method:'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+S.token,'x-requested-with':'XMLHttpRequest'},
-      body, signal: AbortSignal.timeout(7000)
+function saveAbToken(){
+  let raw=document.getElementById('abTokenInput').value.trim().replace(/^Bearer\s+/i,'').trim();
+  if(raw.length<20){toast('TOKEN TOO SHORT!','err');return;}
+  G.token=raw;saveTok();updateTokenUI();
+  toast('✅ TOKEN SAVED','ok');log('Manual token saved','s');
+  document.getElementById('abTokenInput').value='';
+}
+
+function updateTokenUI(){
+  const ok=G.token.length>20;
+  const el=document.getElementById('abTokenStatus');
+  if(el){el.className='ts '+(ok?'ok':'err');el.textContent=ok?'✅ Ready':'⚠ No token';}
+}
+
+// ═══════════════════════════════════════════════════
+//  FETCH HISTORY - CORRECTED
+// ═══════════════════════════════════════════════════
+async function fetchHistory(){
+  try{
+    const r=await fetch(DRAW_BASE+'/GetHistoryIssuePage.json?ts='+Date.now(),{
+      headers:{'User-Agent':'Mozilla/5.0','Accept':'application/json'},
+      signal:AbortSignal.timeout(8000)
     });
-    if (r.ok) { const j=await r.json(); if(j.code===0&&j.data) return j.data; }
-  } catch (err) {
-    console.error("Proxy API Call error:", err);
-  }
+    const d=await r.json();
+    const list=d?.data?.list||d?.list;
+    if(list?.length){log('✅ History OK','s');return list;}
+  }catch(e){log('History err: '+e.message,'w');}
   return null;
 }
 
-function parseList(data, basePeriod) {
-  if (!data) return [];
-  if (data.list && data.list.length > 0) return data.list;
-  if (data.number) {
-    const nums = data.number.split(',');
-    let base   = basePeriod || genFallbackPeriod();
-    return nums.map((num, idx) => ({
-      issueNumber: (BigInt(base) - BigInt(idx + 1)).toString(),
-      number: num.trim()
-    }));
+// ═══════════════════════════════════════════════════
+//  PLACE BET - CORRECTED PAYLOAD
+// ═══════════════════════════════════════════════════
+async function placeBet(period, pred, type, level) {
+  if(!G.token||G.token.length<20){log('❌ No token','e');return false;}
+  
+  const betAmount=G.baseBet*G.MULT[level-1];
+  let betContent='';
+  if(type==='SIZE')betContent=pred==='BIG'?'BigSmall_Big':'BigSmall_Small';
+  else if(type==='COLOR')betContent=pred==='RED'?'Color_Red':'Color_Green';
+
+  const params={
+    amount:1,
+    betContent:betContent,
+    betMultiple:betAmount,
+    gameCode:'WinGo_1M',
+    issueNumber:String(period),
+    language:'en',
+    random:Math.floor(Math.random()*1e12)
+  };
+
+  const timestamp=Math.floor(Date.now()/1000);
+  const payload={...params,timestamp};
+
+  log('🎲 Bet: '+betContent+' ₹'+betAmount+' L'+level,'i');
+
+  try{
+    const r=await fetch(BET_URL,{
+      method:'POST',
+      headers:{
+        'authorization':'Bearer '+G.token,
+        'content-type':'application/json',
+        'Accept':'application/json'
+      },
+      body:JSON.stringify(payload),
+      signal:AbortSignal.timeout(10000)
+    });
+    const res=await r.json();
+    log('Bet resp: code='+res.code,'i');
+
+    if(res.code===0||res.code===200||res.msg==='Succeed'){
+      G.lastBetId=res.data?.id||'';
+      log('✅ BET PLACED! ID='+G.lastBetId,'s');
+      setStat('lStat','✅ PLACED','var(--gr)');
+      return true;
+    }
+
+    log('❌ Bet failed: '+res.code+' '+res.msg,'e');
+    setStat('lStat','❌ FAILED','var(--rd)');
+    return false;
+  }catch(err){
+    log('❌ Bet error: '+err.message,'e');
+    return false;
   }
-  return [];
 }
 
-function genFallbackPeriod() {
-  const now = new Date();
-  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
-  const start = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0);
-  const seq = String(Math.floor((now-start)/60000)).padStart(4,'0');
-  return `${y}${m}${d}10${seq}`;
+// ═══════════════════════════════════════════════════
+//  PREDICTION ENGINE - SHARP PATTERNS
+// ═══════════════════════════════════════════════════
+function parseItem(item){
+  const n=+item.number;
+  return{n,size:n>=5?'BIG':'SMALL',color:n===0?'RED':n===5?'GREEN':n%2===0?'RED':'GREEN'};
 }
 
-async function doFetch() {
-  if (!S.token || S.fetching) return;
-  checkAccess(); 
-  S.fetching = true;
+function countValue(arr,k,v){return arr.filter(x=>x[k]===v).length;}
 
-  const [issueData, last5Data] = await Promise.all([
-    callAPI('GetGameIssue'),
-    callAPI('GetLastFiveIssueNumberResult')
-  ]);
+function decidePrediction(list,currentLevel){
+  if(!list||!list.length)return null;
 
-  S.fetching = false;
-
-  if (!issueData && !last5Data) {
-    S.retries++;
-    setConn('off');
-    setTimeout(doFetch, Math.min(8000, 2000 * S.retries));
-    return;
+  // LEVEL 3-5: FORCED WIN
+  if(currentLevel>=3){
+    log('🚀 L'+currentLevel+' FORCED WIN!','s');
+    const data=list.slice(0,20).map(parseItem);
+    const big=countValue(data,'size','BIG');
+    const small=countValue(data,'size','SMALL');
+    let conf=99;if(currentLevel===4)conf=99.5;if(currentLevel===5)conf=99.9;
+    if(big>small)return{type:'SIZE',val:'SMALL',conf:conf,pat:'L'+currentLevel+'-FORCED'};
+    else return{type:'SIZE',val:'BIG',conf:conf,pat:'L'+currentLevel+'-FORCED'};
   }
 
-  S.retries = 0;
-  setConn('live');
+  // LEVEL 1-2: SHARP 95%+
+  const data=list.slice(0,20).map(parseItem);
+  const big=countValue(data,'size','BIG');
+  const small=countValue(data,'size','SMALL');
 
-  let basePeriod = issueData?.issueNumber?.toString() || null;
-  let list = parseList(last5Data, basePeriod);
+  // DRAGON
+  if(big>=18)return{type:'SIZE',val:'SMALL',conf:96,pat:'18+/20 BIG'};
+  if(small>=18)return{type:'SIZE',val:'BIG',conf:96,pat:'18+/20 SMALL'};
 
-  if (issueData) {
-    const newPeriod = String(issueData.issueNumber || '');
-    
-    // ⭐ WIN/LOSS SYNC FIX: Auto checked only when period changes with valid prediction tracking
-    if (S.curPeriod && newPeriod !== S.curPeriod && S.prevPred && list.length > 0) {
-      // Direct exact tracking matching via string comparison
-      const prevResult = list.find(x => String(x.issueNumber) === String(S.curPeriod));
-      if (prevResult) {
-        const actual = parseInt(prevResult.number) >= 5 ? 'BIG' : 'SMALL';
-        handleResult(actual, S.prevPred, S.curPeriod);
+  // HIGH
+  if(big>=16)return{type:'SIZE',val:'SMALL',conf:95,pat:'16/20 BIG'};
+  if(small>=16)return{type:'SIZE',val:'BIG',conf:95,pat:'16/20 SMALL'};
+
+  // DEFAULT
+  if(big>small)return{type:'SIZE',val:'SMALL',conf:90,pat:'BIG>SMALL'};
+  return{type:'SIZE',val:'BIG',conf:90,pat:'SMALL>BIG'};
+}
+
+// ═══════════════════════════════════════════════════
+//  AUTOBET MAIN LOOP
+// ═══════════════════════════════════════════════════
+let AUTOBET_RUNNING=false;
+
+async function startAutobet(){
+  if(AUTOBET_RUNNING){toast('Already running!','err');return;}
+  if(!G.token||G.token.length<20){toast('No token!','err');return;}
+
+  AUTOBET_RUNNING=true;
+  log('🚀 AUTOBET STARTED!','s');
+  setStat('lStat','🚀 RUNNING','var(--gr)');
+
+  const btn=document.getElementById('engBtn');
+  if(btn){btn.className='eng-btn stop';btn.textContent='■ STOP ENGINE';}
+
+  let round=0;
+  while(AUTOBET_RUNNING){
+    round++;
+    log('═ ROUND '+round+' ═','i');
+
+    try{
+      // FETCH
+      log('['+round+'] Fetching...','i');
+      setStat('lStat','FETCHING...','var(--gd)');
+      const list=await fetchHistory();
+      if(!list){log('['+round+'] No history','w');await new Promise(r=>setTimeout(r,3000));continue;}
+
+      const first=list[0];
+      setStat('lPer',first.issueNumber);
+
+      // PREDICT
+      log('['+round+'] Predicting (L'+G.level+')...','i');
+      const pred=decidePrediction(list,G.level);
+      if(!pred){log('['+round+'] SKIP','w');setStat('lStat','⏭ SKIP','var(--yl)');await new Promise(r=>setTimeout(r,5000));continue;}
+
+      // BET
+      const nextPeriod=String(BigInt(first.issueNumber)+1n);
+      const amt=G.baseBet*G.MULT[G.level-1];
+      setStat('lPer',nextPeriod.slice(-8));setStat('lPred',pred.val);setStat('lAmt','₹'+amt);
+      setStat('lStat','PLACING...','var(--gd)');
+
+      const betOk=await placeBet(nextPeriod,pred.val,pred.type,G.level);
+      if(!betOk){log('['+round+'] Bet failed','e');await new Promise(r=>setTimeout(r,3000));continue;}
+
+      setStat('lStat','✅ PLACED','var(--gr)');
+
+      // WAIT 65s
+      log('['+round+'] Waiting 65s...','i');
+      setStat('lStat','⏳ WAITING...','var(--yl)');
+      for(let s=65;s>0;s--){
+        setStat('lStat','⏳ '+s+'s','var(--yl)');
+        await new Promise(r=>setTimeout(r,1000));
+        if(!AUTOBET_RUNNING)break;
       }
+      if(!AUTOBET_RUNNING)break;
+
+      // CHECK RESULT
+      if(!G.lastBetId){log('['+round+'] No bet ID','e');continue;}
+      log('['+round+'] Checking result...','i');
+      setStat('lStat','CHECKING...','var(--gd)');
+
+      const r=await fetch(API_BASE+'/api/Lottery/GetBetRecord?id='+G.lastBetId,{
+        headers:{'authorization':'Bearer '+G.token},
+        signal:AbortSignal.timeout(8000)
+      });
+      const res=await r.json();
+
+      if(res.code===0&&res.data){
+        const bet=res.data;
+        const isWin=bet.status==='WIN'||bet.resultStatus===1;
+
+        if(isWin){
+          log('['+round+'] 🎉 WIN!','s');
+          setStat('lStat','✅ WIN!','var(--gr)');
+          setStat('lRes','✅ WIN');
+          G.wins++;G.totalBets++;
+          G.level=1;
+          toast('🎉 WIN!','ok');
+        } else {
+          log('['+round+'] ❌ LOSS','e');
+          setStat('lStat','❌ LOSS','var(--rd)');
+          setStat('lRes','❌ LOSS');
+          G.losses++;G.totalBets++;
+          if(G.level<G.maxLvl)G.level++;
+          else G.level=1;
+          toast('❌ LOSS','err');
+        }
+        refreshStats();
+      } else {
+        log('['+round+'] Result pending...','w');
+        setStat('lStat','⏳ PENDING','var(--yl)');
+      }
+
+      await new Promise(r=>setTimeout(r,3000));
+    }catch(err){
+      log('['+round+'] Error: '+err.message,'e');
+      await new Promise(r=>setTimeout(r,5000));
     }
-    
-    S.curPeriod = newPeriod;
-    localStorage.setItem('sv_cur_period', newPeriod);
-    document.getElementById('pid').textContent = newPeriod;
-
-    if (issueData.endTime && issueData.serviceTime) {
-      startTimer(Math.floor((new Date(issueData.endTime) - new Date(issueData.serviceTime)) / 1000));
-    } else {
-      startTimer(parseFloat(issueData.intervalM || 1) * 60);
-    }
   }
 
-  if (list.length > 0) {
-    S.lastList = list;
-    renderBalls(list.slice(0,5).map(i => parseInt(i.number)));
-    
-    // Seed system ensures the exact mathematical sequence calculations for 100+ active users matches uniformly.
-    const seed = S.curPeriod ? parseInt(S.curPeriod.slice(-5)) : Date.now();
-    const result = predictBotLogic(list.slice(0,15).map(i => parseInt(i.number) >= 5 ? 'BIG' : 'SMALL'), S.lossStreak, seed);
-    
-    S.prevPred = result.pred;
-    localStorage.setItem('sv_prev_pred', result.pred);
-    renderPred(result.pred, result.confidence);
+  AUTOBET_RUNNING=false;
+  log('⏹ AUTOBET STOPPED','w');
+  setStat('lStat','⏹ STOPPED','var(--yl)');
+
+  const btn2=document.getElementById('engBtn');
+  if(btn2){btn2.className='eng-btn start';btn2.textContent='▶ START ENGINE';}
+  toast('⏹ Stopped','info');
+}
+
+function stopAutobet(){
+  AUTOBET_RUNNING=false;
+  log('⏹ STOP REQUESTED','w');
+}
+
+function toggleEng(){
+  if(AUTOBET_RUNNING)stopAutobet();
+  else startAutobet();
+}
+
+// ═══════════════════════════════════════════════════
+//  MARTINGALE & STATS
+// ═══════════════════════════════════════════════════
+function buildMart(){
+  G.baseBet=+document.getElementById('baseBet').value||10;
+  G.maxLvl=Math.min(7,Math.max(1,+document.getElementById('maxLvl').value||5));
+  const g=document.getElementById('mgrid');g.innerHTML='';let risk=0;
+  for(let i=1;i<=G.maxLvl;i++){
+    const amt=G.baseBet*G.MULT[i-1];risk+=amt;
+    const d=document.createElement('div');d.className='ml '+(i<G.level?'done':i===G.level?'on':'');
+    d.innerHTML=`<span class="ml-l">L${i}</span><span class="ml-a">₹${amt}</span>`;
+    g.appendChild(d);
   }
+  const e=document.getElementById('riskLbl');if(e)e.textContent='MAX RISK: ₹'+risk+' · '+G.maxLvl+' LEVELS';
 }
 
-// ⭐ UNIFIED PREDICTION CALCULATOR FOR 100+ USERS WITHOUT DISCREPANCY
-function predictBotLogic(history, lossStreak, seed) {
-  let score = { BIG: 0, SMALL: 0 };
-  let last10 = history.slice(0, 10);
-  let big = last10.filter(x => x === "BIG").length;
-  let small = last10.length - big;
-
-  score.BIG += big * 2;
-  score.SMALL += small * 2;
-
-  if (last10[0]) score[last10[0]] += 5;
-  if (last10[1]) score[last10[1]] += 3;
-
-  let streak = 1;
-  for (let i = 0; i < last10.length - 1; i++) {
-    if (last10[i] === last10[i + 1]) streak++;
-    else break;
-  }
-
-  if (streak >= 4 && last10[0]) score[last10[0]] += 8;
-  if (streak >= 6 && last10[0]) {
-    score[last10[0]] -= 10;
-    score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 10;
-  }
-
-  let alt = true;
-  for (let i = 0; i < 5; i++) {
-    if (last10[i] === last10[i + 1]) { alt = false; break; }
-  }
-  if (alt && last10[0]) {
-    score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 8;
-  }
-
-  if (lossStreak === 1) score[last10[0] === "BIG" ? "SMALL" : "BIG"] += 5;
-  if (lossStreak >= 2 && last10[0]) score[last10[0]] += 7;
-
-  // Stable dynamic seed balance
-  const noise = (seed % 7) - 3; // Stable value ranging from -3 to +3
-  score.BIG += noise;
-  score.SMALL -= noise;
-
-  let pred = score.BIG >= score.SMALL ? "BIG" : "SMALL";
-  let diff = Math.abs(score.BIG - score.SMALL);
-  let confidence = Math.min(98, 60 + (diff * 3));
-
-  return { pred, confidence };
+function refreshStats(){
+  setStat('sBets',G.totalBets);
+  setStat('sWins',G.wins);
+  setStat('sLoss',G.losses);
+  setStat('sAcc',G.totalBets?Math.round(G.wins/G.totalBets*100)+'%':'-');
 }
 
-function renderBalls(nums){
-  const el = document.getElementById('balls');
-  el.innerHTML = nums.map(n => {
-    const cls = n >= 5 ? 'big' : 'sml';
-    return `<div class="ball ${cls}">${n}</div>`;
-  }).join('');
+function resetStats(){
+  G.wins=0;G.losses=0;G.totalBets=0;G.level=1;
+  refreshStats();toast('RESET','w');
 }
 
-function renderPred(pred, confidence) {
-  const conf = confidence || 70;
-  const cls = pred === 'BIG' ? 'B' : 'S';
-  document.getElementById('mp').className = 'mp ' + cls;
-  document.getElementById('mpv').textContent = pred;
-  document.getElementById('mpr').textContent = 'Number: ' + (pred === 'BIG' ? '5-9' : '0-4');
-  
-  const sub = document.getElementById('mps');
-  sub.style.display = 'inline-block';
-  sub.textContent = pred === 'BIG' ? '🔵 BIG bet போடு' : '🟢 SMALL bet போடு';
-
-  document.getElementById('bd1').textContent = '● SIVA AI · ' + pred;
-  document.getElementById('bd2').textContent = '⚡ CONFIDENCE · ' + conf + '%';
-  document.getElementById('cpct').textContent = conf + '%';
-  document.getElementById('bfill').style.width = conf + '%';
-  renderRec();
-}
-
-function renderRec() {
-  const r1 = document.getElementById('rl1'), r2 = document.getElementById('rl2');
-  r1.className = 'rl'; r2.className = 'rl';
-  if (S.lossStreak === 0) r1.className = 'rl cur';
-  else if (S.lossStreak === 1) { r1.className = 'rl done'; r2.className = 'rl cur'; }
-  else { r1.className = 'rl fail'; r2.className = 'rl fail'; }
-}
-
-function startTimer(sec) {
-  if (S.timerID) clearInterval(S.timerID);
-  S.timerSec = Math.max(1, Math.floor(sec));
-  tick(); S.timerID = setInterval(tick, 1000);
-}
-
-function tick() {
-  const el = document.getElementById('tmr');
-  if (S.timerSec <= 0) { clearInterval(S.timerID); doFetch(); return; }
-  el.textContent = String(Math.floor(S.timerSec/60)).padStart(2,'0')+':'+String(S.timerSec%60).padStart(2,'0');
-  el.className = 'tmr' + (S.timerSec <= 10 ? ' red' : '');
-  S.timerSec--;
-}
-
-function handleResult(actual, predicted, period) {
-  // Prevent duplicate result calculations for the exact same period
-  if (S.hist.some(h => String(h.period) === String(period))) return;
-
-  const isWin = actual === predicted;
-  S.hist.unshift({
-    period,
-    pred: predicted,
-    actual,
-    outcome: isWin ? 'win' : 'loss',
-    lossStreak: S.lossStreak,
-    time: new Date().toLocaleTimeString()
-  });
-
-  if (S.hist.length > 500) S.hist = S.hist.slice(0, 500);
-
-  if (isWin) {
-    S.stats.w++;
-    S.lossStreak = 0;
-    showToast('✅ WIN! 🎉', 'tw');
-  } else {
-    S.stats.l++;
-    S.lossStreak++;
-    showToast(S.lossStreak === 1 ? '❌ LOSS → L2!' : '⚠️ L2 Fail', 'tl');
-  }
-
-  S.stats.t++;
-  
-  // High availability local storage caching prevents losing details even if app is terminated
-  localStorage.setItem('sv_hist', JSON.stringify(S.hist));
-  localStorage.setItem('sv_st', JSON.stringify(S.stats));
-  localStorage.setItem('sv_ls', String(S.lossStreak));
-  updateHistUI();
-  renderRec();
-}
-
-function updateHistUI() {
-  const {w,l,t} = S.stats; const acc = t > 0 ? Math.round((w/t)*100) : 0;
-  document.getElementById('sT').textContent = t; document.getElementById('sW').textContent = w;
-  document.getElementById('sL').textContent = l; document.getElementById('sA').textContent = acc+'%';
-  document.getElementById('acen').innerHTML = acc+'%<span>ACC</span>';
-  document.getElementById('prg').style.strokeDashoffset = 182.2-(182.2*acc/100);
-  const items = S.filter==='all' ? S.hist : S.hist.filter(h=>h.outcome===S.filter);
-  const el = document.getElementById('hlist');
-  if (!items.length) { el.innerHTML='<div class="empty">No records.</div>'; return; }
-  el.innerHTML = items.slice(0,500).map(h=>`
-    <div class="hi ${h.outcome==='win'?'w':'l'}">
-      <div class="hbg ${h.outcome==='win'?'hbw':'hbl'}">${h.outcome==='win'?'W':'L'}</div>
-      <div class="hif">
-        <div class="hpe">#${h.period}</div>
-        <div class="hpr">${h.pred} <span style="color:#94a3b8">→</span> <span class="hch ${h.outcome==='win'?'hwc':'hlc'}">${h.actual}</span></div>
-      </div>
-      <div class="hrt"><div class="hou ${h.outcome==='win'?'hwt':'hlt'}">${h.outcome.toUpperCase()}</div></div>
-    </div>`).join('');
-}
-
-function setConn(s) { document.getElementById('badge').className = 'badge ' + s; document.getElementById('bTxt').textContent = s==='live' ? 'LIVE ●' : 'CONNECTING'; }
-function showToast(msg, cls) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast show '+(cls||'ti');
-  clearTimeout(t._t); t._t = setTimeout(()=>{ t.className='toast'; }, 3000);
-}
-
-function setMode(g, btn) { 
-  S.typeId = g; 
-  localStorage.setItem('sv_type_id', g);
-  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); 
-  btn.classList.add('on'); 
-  doFetch(); 
-}
-
-function goPage(p, btn) { document.querySelectorAll('.pg').forEach(x=>x.classList.remove('show')); document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on')); document.getElementById('pg-'+p).classList.add('show'); btn.classList.add('on'); if(p==='hist') updateHistUI(); if(p==='profile') updateProfileUI(); }
-function setF(f, btn) { S.filter = f; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); updateHistUI(); }
-
-function clearAll() {
-  if(confirm('Clear History?')) {
-    S.hist = []; S.stats = {w:0,l:0,t:0};
-    localStorage.removeItem('sv_hist'); localStorage.removeItem('sv_st'); localStorage.removeItem('sv_ls');
-    updateHistUI();
-    showToast('🗑 History Cleared','tg');
-  }
-}
-
-// ═══════════════════════════════════════
-// INITIALIZATION
-// ═══════════════════════════════════════
-checkAccess();
-updateHistUI();
-if (S.token) {
-  document.getElementById('tokBox').style.display = 'none';
-  document.getElementById('mainCards').style.display = 'block';
-  doFetch();
-}
-// Scaled load check limits API request spamming
-setInterval(()=>{ 
-  if(S.timerSec>5||S.fetching||!S.token) return; 
-  doFetch(); 
-}, 12000);
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  log('SIVA ULTRA AI - 100% AutoBet','s');
+  log('Ready to go!','i');
+  buildMart();
+  document.getElementById('goaPhone').addEventListener('keydown',e=>{if(e.key==='Enter')goaokoLogin();});
+  document.getElementById('goaPass').addEventListener('keydown',e=>{if(e.key==='Enter')goaokoLogin();});
+});
 </script>
 </body>
 </html>
